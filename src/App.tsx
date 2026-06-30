@@ -718,10 +718,12 @@ export default function App() {
             <div className="inline-flex h-20 w-20 rounded-3xl bg-[#0066FF] items-center justify-center shadow-[0_0_35px_rgba(0,102,255,0.5)] mb-5">
               <Tv className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-display font-extrabold tracking-tight text-white uppercase">
-              webOS <span className="text-[#0066FF]">IPTV Player</span>
-            </h1>
-            <p className="text-white/40 text-[10px] font-mono uppercase tracking-widest mt-3">Disfruta tus transmisiones y contenido premium favoritos en tu TV</p>
+            <h1 className="text-4xl font-display font-extrabold tracking-tight text-white">
+  Nova<span className="text-[#0066FF]">TV</span>
+</h1>
+            <p className="text-white/50 text-sm font-medium mt-3">
+    Simple. Rápido. Elegante.
+</p>
           </div>
 
           {/* Core Navigation Options Panel */}
@@ -806,7 +808,7 @@ export default function App() {
           </div>
 
           {/* Quick instructions indicator */}
-          <div className="absolute bottom-8 text-[10px] text-white/30 flex items-center gap-6 font-mono uppercase tracking-widest">
+          <div className="absolute bottom-8 left-8 right-8 text-[10px] text-white/30 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono uppercase tracking-widest">
             <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">▲ ▼</span> Mover foco</span>
             <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">OK / Enter</span> Confirmar acción</span>
           </div>

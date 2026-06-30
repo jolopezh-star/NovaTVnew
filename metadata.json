@@ -1,6 +1,5 @@
 {
-  "name": "webOS IPTV Player",
-  "description": "Reproductor IPTV premium y minimalista optimizado para LG webOS TV (6.0+), con soporte para Xtream Codes, listas M3U, favoritos, control por control remoto y reanudación automática.",
-  "requestFramePermissions": [],
+  "name": "NovaTV",
+  "description": "NovaTV - Reproductor IPTV premium para LG webOS con soporte para Xtream Codes y listas M3U.",
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
