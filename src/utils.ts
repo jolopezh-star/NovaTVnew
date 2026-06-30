@@ -194,6 +194,8 @@ export async function fetchXtreamLiveStreams(creds: XtreamCredentials): Promise<
         logo: item.stream_icon || 'https://images.unsplash.com/photo-1598257006458-087169a1f08d?w=120&auto=format&fit=crop&q=80',
         streamUrl: `${cleanUrl}/live/${creds.username}/${creds.password}/${item.stream_id}.m3u8`,
         category: `xtream-live-${item.category_id}`,
+        streamId: String(item.stream_id),
+epgChannelId: item.epg_channel_id || undefined,
         type: 'live'
       }));
     }

@@ -31,6 +31,9 @@ export interface IPTVItem {
   streamUrl: string;
   category: string;
   type: 'live' | 'movie' | 'series';
+  // Xtream metadata
+streamId?: string;
+epgChannelId?: string;
   // Movies & Series details
   year?: string;
   genre?: string;
