@@ -715,10 +715,10 @@ export default function App() {
 
           {/* Logo & Header */}
           <div className="text-center mb-10">
-            <div className="inline-flex h-20 w-20 rounded-3xl bg-[#0066FF] items-center justify-center shadow-[0_0_35px_rgba(0,102,255,0.5)] mb-5">
+            <div className="inline-flex h-16 w-16 rounded-3xl bg-[#0066FF] items-center justify-center shadow-[0_0_35px_rgba(0,102,255,0.5)] mb-5">
               <Tv className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-display font-extrabold tracking-tight text-white">
+            <h1 className="text-5xl font-display font-extrabold tracking-tight text-white">
   Nova<span className="text-[#0066FF]">TV</span>
 </h1>
             <p className="text-white/50 text-sm font-medium mt-3">
@@ -781,8 +781,8 @@ export default function App() {
                 <Play className="w-5 h-5 text-inherit fill-current" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Canales de Demostración</span>
-                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 2 ? 'text-white/70' : 'text-white/30'}`}>Prueba el reproductor sin credenciales</span>
+                <span className="block text-sm">Modo Demo</span>
+                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 2 ? 'text-white/70' : 'text-white/30'}`}>Explora NovaTV sin iniciar sesión</span>
               </div>
             </button>
 
