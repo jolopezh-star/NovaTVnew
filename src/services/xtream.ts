@@ -3,12 +3,18 @@ export interface XtreamCredentials {
   username: string;
   password: string;
 }
-
+export interface ConnectionResult {
+  success: boolean;
+  message: string;
+}
 export async function testConnection(
   credentials: XtreamCredentials
-): Promise<boolean> {
+): Promise<ConnectionResult> {
   console.log("Probando conexión con:", credentials.server);
 
   // Aquí implementaremos la conexión real más adelante.
-  return true;
+ return {
+  success: true,
+  message: "Conexión simulada correcta",
+};
 }

@@ -104,7 +104,9 @@ function slugify(text: string): string {
 }
 
 // Fetches from Xtream Codes API
-export async function testXtreamConnection(creds: XtreamCredentials): Promise<boolean> {
+export async function testXtreamConnection(
+  creds: XtreamCredentials
+): Promise<{ success: boolean; message: string }> {
   const cleanUrl = creds.url.replace(/\/$/, '');
   const testApiUrl = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}`;
   
@@ -114,13 +116,44 @@ export async function testXtreamConnection(creds: XtreamCredentials): Promise<bo
     const res = await fetch(testApiUrl, { signal: controller.signal });
     clearTimeout(id);
     
-    if (!res.ok) return false;
+if (res.status === 401 || res.status === 403) {
+  return {
+    success: false,
+    message: "Usuario o contraseña incorrectos.",
+  };
+}
+
+if (!res.ok) {
+  return {
+    success: false,
+    message: `El servidor respondió con el error ${res.status}.`,
+  };
+}   
     const data = await res.json();
-    return data && data.user_info && data.user_info.auth === 1;
-  } catch (error) {
+  if (data && data.user_info && data.user_info.auth === 1) {
+  return {
+    success: true,
+    message: "Conexión exitosa.",
+  };
+}
+
+return {
+  success: false,
+  message: "Usuario o contraseña incorrectos.",
+};  
+} catch (error) {
+
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    console.error('Tiempo de espera agotado al conectar con el servidor.');
+  } else {
     console.error('Error connecting to Xtream server:', error);
-    return false;
   }
+
+ return {
+  success: false,
+  message: "No fue posible conectar con el servidor.",
+}; 
+}  
 }
 
 export async function fetchXtreamCategories(creds: XtreamCredentials, action: 'get_live_categories' | 'get_vod_categories' | 'get_series_categories'): Promise<Category[]> {
