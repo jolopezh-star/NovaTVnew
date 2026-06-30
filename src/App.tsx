@@ -21,8 +21,18 @@ import LoginXtream from './components/LoginXtream';
 import LoginM3u from './components/LoginM3u';
 import Player from './components/Player';
 import PINDialog from './components/PINDialog';
+import HomeScreen from './components/HomeScreen';
+import { testConnection } from './services/xtream';
+import HomeHeader from "./components/HomeHeader";
 
 export default function App() {
+useEffect(() => {
+  testConnection({
+    server: "https://demo.com",
+    username: "demo",
+    password: "1234",
+  });
+}, []);  
   // --- APPLICATION VIEWS & GENERAL STATES ---
   const [section, setSection] = useState<AppSection>(AppSection.Home);
   const [activeTab, setActiveTab] = useState<SidebarTab>(SidebarTab.Live);
@@ -713,18 +723,14 @@ export default function App() {
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#0066FF]/5 rounded-full blur-3xl -z-10" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#0066FF]/2 rounded-full blur-3xl -z-10" />
 
-          {/* Logo & Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex h-16 w-16 rounded-3xl bg-[#0066FF] items-center justify-center shadow-[0_0_35px_rgba(0,102,255,0.5)] mb-5">
-              <Tv className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-5xl font-display font-extrabold tracking-tight text-white">
-  Nova<span className="text-[#0066FF]">TV</span>
-</h1>
-            <p className="text-white/50 text-sm font-medium mt-3">
-    Simple. Rápido. Elegante.
-</p>
-          </div>
+         <HomeHeader
+  title={
+    <>
+      Nova<span className="text-[#0066FF]">TV</span>
+    </>
+  }
+  subtitle="Simple. Rápido. Elegante."
+/>
 
           {/* Core Navigation Options Panel */}
           <div className="w-full max-w-sm flex flex-col gap-4">
