@@ -35,17 +35,19 @@ export async function fetchShortEPG(
       return [];
     }
 
-    return data.epg_listings.map((epg: {
-  title: string;
-  description: string;
-  start: string;
-  end: string;
-}) => ({
-      title: epg.title,
-      description: epg.description,
-      start: epg.start,
-      end: epg.end,
-    }));
+    return data.epg_listings.map((epg: any) => ({
+
+  title: atob(epg.title),
+
+  description: epg.description
+    ? atob(epg.description)
+    : "",
+
+  start: epg.start,
+
+  end: epg.end,
+
+}));
 
   } catch (err) {
 

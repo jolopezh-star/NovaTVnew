@@ -28,6 +28,7 @@ import HomeHeader from "./components/HomeHeader";
 
 export default function App() {
 
+
   // --- APPLICATION VIEWS & GENERAL STATES ---
   const [section, setSection] = useState<AppSection>(AppSection.Home);
   const [activeTab, setActiveTab] = useState<SidebarTab>(SidebarTab.Live);
@@ -65,6 +66,7 @@ export default function App() {
 
   // --- ACTIVE PLAYBACK ---
   const [activePlayItem, setActivePlayItem] = useState<IPTVItem | null>(null);
+  
   const [activeEpisodeId, setActiveEpisodeId] = useState<string>('');
   const [currentEPG, setCurrentEPG] = useState<EPGEntry[]>([]);
 const [loadingEPG, setLoadingEPG] = useState(false);
@@ -142,7 +144,6 @@ const [loadingEPG, setLoadingEPG] = useState(false);
     setLoadingEPG(false);
     return;
   }
-
   const loadEPG = async () => {
 
     const creds = storage.getCredentials();
@@ -1604,6 +1605,8 @@ if (
           controlIndex={playerControlFocusedIndex}
           playerControlsVisible={playerControlsVisible}
           setPlayerControlsVisible={setPlayerControlsVisible}
+          currentEPG={currentEPG}
+          loadingEPG={loadingEPG}
         />
       )}
 

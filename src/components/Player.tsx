@@ -2,7 +2,25 @@ import React, { useRef, useEffect, useState } from 'react';
 import Hls from 'hls.js';
 import { Play, Pause, RotateCcw, Volume2, Languages, ArrowLeft, Maximize2, SkipForward, Landmark } from 'lucide-react';
 import { IPTVItem, PlaybackProgress } from '../types';
+import { EPGEntry } from '../services/epg';
 import { storage } from '../utils';
+function getProgramProgress(start: string, end: string) {
+  const now = Date.now();
+  const s = new Date(start).getTime();
+  const e = new Date(end).getTime();
+
+  if (now <= s) return 0;
+  if (now >= e) return 100;
+
+  return ((now - s) / (e - s)) * 100;
+}
+
+function formatHour(date: string) {
+  return new Date(date).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 interface PlayerProps {
   item: IPTVItem;
@@ -10,7 +28,10 @@ interface PlayerProps {
   onBack: () => void;
   controlIndex: number; // 0: Play/Pause, 1: Prev (15s), 2: Next (15s), 3: Audio, 4: Subtitles, 5: PiP, 6: Volver
   playerControlsVisible: boolean;
-  setPlayerControlsVisible: (visible: boolean) => void;
+setPlayerControlsVisible: (visible: boolean) => void;
+
+currentEPG: EPGEntry[];
+loadingEPG: boolean;
 }
 
 export default function Player({
@@ -19,7 +40,9 @@ export default function Player({
   onBack,
   controlIndex,
   playerControlsVisible,
-  setPlayerControlsVisible
+  setPlayerControlsVisible,
+  currentEPG,
+  loadingEPG
 }: PlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -376,16 +399,82 @@ export default function Player({
           </div>
         </div>
 
-        {/* HUD Center Info Panel (If live TV, show EPG) */}
-        {item.type === 'live' && (
-          <div className="self-start max-w-lg ml-16 mt-6 bg-[#0C0C0C]/80 border border-white/5 rounded-2xl p-5 backdrop-blur-md">
-            <span className="text-[9px] text-[#0066FF] font-bold font-mono uppercase tracking-widest">En emisión ahora</span>
-            <h3 className="text-base font-display font-bold text-white mt-1 uppercase tracking-tight">Programa Especial En Directo</h3>
-            <p className="text-xs text-white/50 mt-1.5 line-clamp-2 leading-relaxed font-sans">
-              Transmisión satelital continua optimizada de alta fidelidad. Consulta la guía completa de programación en el panel lateral de televisión.
+      {/* HUD Center Info Panel (EPG REAL) */}
+{item.type === 'live' && (
+  <div className="self-start max-w-lg ml-16 mt-6 bg-[#0C0C0C]/80 border border-white/5 rounded-2xl p-5 backdrop-blur-md">
+
+    {loadingEPG ? (
+      <p className="text-white/60 text-sm">
+        Cargando guía...
+      </p>
+    ) : currentEPG.length > 0 ? (
+      <>
+        <span className="text-[9px] text-[#0066FF] font-bold font-mono uppercase tracking-widest">
+          En emisión ahora
+        </span>
+
+        <h3 className="text-base font-display font-bold text-white mt-1 uppercase tracking-tight">
+          {currentEPG[0].title}
+        </h3>
+
+        <p className="text-xs text-white/50 mt-1">
+          {new Date(currentEPG[0].start).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+})}
+{" - "}
+{new Date(currentEPG[0].end).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+})}
+        </p>
+<div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+  <div
+    className="h-full bg-[#0066FF] transition-all duration-500"
+    style={{
+      width: `${getProgramProgress(
+        currentEPG[0].start,
+        currentEPG[0].end
+      )}%`,
+    }}
+  />
+</div>
+        <p className="text-xs text-white/70 mt-2 line-clamp-3">
+          {currentEPG[0].description}
+        </p>
+
+        {currentEPG.length > 1 && (
+          <div className="mt-4 pt-3 border-t border-white/10">
+            <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest">
+              Sigue
+            </p>
+
+            <p className="text-sm text-white font-semibold mt-1">
+              {currentEPG[1].title}
+            </p>
+
+            <p className="text-xs text-white/50">
+              {new Date(currentEPG[1].start).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+})}
+{" - "}
+{new Date(currentEPG[1].end).toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+})}
             </p>
           </div>
         )}
+      </>
+    ) : (
+      <p className="text-white/60 text-sm">
+        No hay información de programación.
+      </p>
+    )}
+
+  </div>
+)}
 
         {/* HUD Bottom Panel (Timeline & Action Controls) */}
         <div className="space-y-6">
