@@ -137,6 +137,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   useEffect(() => {
     storage.saveSettings(settings);
   }, [settings]);
+  
  useEffect(() => {
 
   if (!activePlayItem?.streamId) {
