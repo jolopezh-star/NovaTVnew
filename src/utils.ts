@@ -107,7 +107,10 @@ function slugify(text: string): string {
 export async function testXtreamConnection(
   creds: XtreamCredentials
 ): Promise<{ success: boolean; message: string }> {
-  const cleanUrl = creds.url.replace(/\/$/, '');
+  const cleanUrl =
+  window.location.hostname === 'localhost'
+    ? '/xtream'
+    : creds.url.replace(/\/$/, '');
   const testApiUrl = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}`;
   
   try {
@@ -131,12 +134,13 @@ if (!res.ok) {
 }   
     const data = await res.json();
   if (data && data.user_info && data.user_info.auth === 1) {
-  return {
+ console.log("Respuesta Xtream:", data);
+    return {
     success: true,
     message: "Conexión exitosa.",
   };
 }
-
+console.log("Respuesta no válida:", data);
 return {
   success: false,
   message: "Usuario o contraseña incorrectos.",
@@ -157,7 +161,10 @@ return {
 }
 
 export async function fetchXtreamCategories(creds: XtreamCredentials, action: 'get_live_categories' | 'get_vod_categories' | 'get_series_categories'): Promise<Category[]> {
-  const cleanUrl = creds.url.replace(/\/$/, '');
+  const cleanUrl =
+  window.location.hostname === 'localhost'
+    ? '/xtream'
+    : creds.url.replace(/\/$/, '');
   const url = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}&action=${action}`;
   
   try {
@@ -180,7 +187,10 @@ export async function fetchXtreamCategories(creds: XtreamCredentials, action: 'g
 }
 
 export async function fetchXtreamLiveStreams(creds: XtreamCredentials): Promise<IPTVItem[]> {
-  const cleanUrl = creds.url.replace(/\/$/, '');
+  const cleanUrl =
+  window.location.hostname === 'localhost'
+    ? '/xtream'
+    : creds.url.replace(/\/$/, '');
   const url = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}&action=get_live_streams`;
   
   try {
@@ -207,7 +217,10 @@ epgChannelId: item.epg_channel_id || undefined,
 }
 
 export async function fetchXtreamVodStreams(creds: XtreamCredentials): Promise<IPTVItem[]> {
-  const cleanUrl = creds.url.replace(/\/$/, '');
+  const cleanUrl =
+  window.location.hostname === 'localhost'
+    ? '/xtream'
+    : creds.url.replace(/\/$/, '');
   const url = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}&action=get_vod_streams`;
   
   try {

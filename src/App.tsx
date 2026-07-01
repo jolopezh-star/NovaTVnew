@@ -22,17 +22,12 @@ import LoginM3u from './components/LoginM3u';
 import Player from './components/Player';
 import PINDialog from './components/PINDialog';
 import HomeScreen from './components/HomeScreen';
-import { testConnection } from './services/xtream';
+
+import { fetchShortEPG, EPGEntry } from './services/epg';
 import HomeHeader from "./components/HomeHeader";
 
 export default function App() {
-useEffect(() => {
-  testConnection({
-    server: "https://demo.com",
-    username: "demo",
-    password: "1234",
-  });
-}, []);  
+
   // --- APPLICATION VIEWS & GENERAL STATES ---
   const [section, setSection] = useState<AppSection>(AppSection.Home);
   const [activeTab, setActiveTab] = useState<SidebarTab>(SidebarTab.Live);
@@ -71,6 +66,8 @@ useEffect(() => {
   // --- ACTIVE PLAYBACK ---
   const [activePlayItem, setActivePlayItem] = useState<IPTVItem | null>(null);
   const [activeEpisodeId, setActiveEpisodeId] = useState<string>('');
+  const [currentEPG, setCurrentEPG] = useState<EPGEntry[]>([]);
+const [loadingEPG, setLoadingEPG] = useState(false);
 
   // --- SERIES DETAIL STATE ---
   const [activeSeriesDetail, setActiveSeriesDetail] = useState<IPTVItem | null>(null);
@@ -138,6 +135,37 @@ useEffect(() => {
   useEffect(() => {
     storage.saveSettings(settings);
   }, [settings]);
+ useEffect(() => {
+
+  if (!activePlayItem?.streamId) {
+    setCurrentEPG([]);
+    setLoadingEPG(false);
+    return;
+  }
+
+  const loadEPG = async () => {
+
+    const creds = storage.getCredentials();
+
+    if (!creds) return;
+
+    setLoadingEPG(true);
+
+    const epg = await fetchShortEPG(
+      creds,
+      activePlayItem.streamId!
+    );
+
+    setCurrentEPG(epg);
+    setLoadingEPG(false);
+
+    console.log("EPG recibido:", epg);
+
+  };
+
+  loadEPG();
+
+}, [activePlayItem]);
 
   // Handle active category defaulting based on active tab
   useEffect(() => {
@@ -192,8 +220,11 @@ useEffect(() => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const success = await testXtreamConnection(creds);
-      if (success) {
+      
+      const result = await testXtreamConnection(creds);
+      console.log("Resultado conexión:", result);
+
+if (result.success) {
         storage.saveCredentials(creds);
         setIsDemoMode(false);
         
@@ -213,7 +244,7 @@ useEffect(() => {
         if (mergedStreams.length > 0) setItems(mergedStreams);
 
         // Save categories and items to storage to allow offline boot later
-        storage.saveM3UList({ items: mergedStreams, categories: mergedCats });
+        //storage.saveM3UList({ items: mergedStreams, categories: mergedCats });
 
         // Set default category
         const firstCat = mergedCats.find(c => c.type === 'live');
@@ -222,11 +253,14 @@ useEffect(() => {
         setSection(AppSection.Main);
         setActiveArea('sidebar');
       } else {
-        if (!isAuto) setErrorMessage('Error de conexión: Verifica la URL del servidor, usuario o contraseña.');
-      }
+  if (!isAuto) {
+    setErrorMessage(result.message);
+  }
+}
     } catch (e) {
-      setErrorMessage('Error al conectar con el servidor Xtream Codes.');
-    } finally {
+  console.error("Error después del login:", e);
+  setErrorMessage('Error al conectar con el servidor Xtream Codes.');
+} finally {
       setIsLoading(false);
     }
   };
@@ -345,6 +379,14 @@ useEffect(() => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
         e.preventDefault();
       }
+      const target = e.target as HTMLElement;
+
+if (
+  target.tagName === 'INPUT' ||
+  target.tagName === 'TEXTAREA'
+) {
+  return;
+}
 
       // 1. --- HOME SECTION SPATIAL NAV ---
       if (section === AppSection.Home) {

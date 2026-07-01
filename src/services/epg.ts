@@ -55,3 +55,21 @@ export async function fetchShortEPG(
   }
 
 }
+export function getCurrentProgram(epg: EPGEntry[]): EPGEntry | null {
+
+  const now = new Date();
+
+  for (const program of epg) {
+
+    const start = new Date(program.start);
+    const end = new Date(program.end);
+
+    if (now >= start && now <= end) {
+      return program;
+    }
+
+  }
+
+  return null;
+
+}
