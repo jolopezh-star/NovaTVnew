@@ -23,7 +23,12 @@ import Player from './components/Player';
 import PINDialog from './components/PINDialog';
 import HomeScreen from './components/HomeScreen';
 
-import { fetchShortEPG, EPGEntry } from './services/epg';
+import {
+  fetchShortEPG,
+  EPGEntry,
+  formatEPGTime,
+  getCurrentProgram,
+} from './services/epg';
 import HomeHeader from "./components/HomeHeader";
 
 export default function App() {
@@ -70,6 +75,7 @@ export default function App() {
   const [activeEpisodeId, setActiveEpisodeId] = useState<string>('');
   const [currentEPG, setCurrentEPG] = useState<EPGEntry[]>([]);
 const [loadingEPG, setLoadingEPG] = useState(false);
+const [epgCache, setEpgCache] = useState<Record<string, EPGEntry[]>>({});
 
   // --- SERIES DETAIL STATE ---
   const [activeSeriesDetail, setActiveSeriesDetail] = useState<IPTVItem | null>(null);
@@ -168,6 +174,32 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   loadEPG();
 
 }, [activePlayItem]);
+useEffect(() => {
+
+  if (section !== AppSection.Main) return;
+
+  const channel = filteredItems[gridFocusedIndex];
+
+  if (!channel?.streamId) return;
+
+  const loadPreviewEPG = async () => {
+
+    const creds = storage.getCredentials();
+
+    if (!creds) return;
+
+    const epg = await fetchShortEPG(
+      creds,
+      channel.streamId!
+    );
+
+    setCurrentEPG(epg);
+
+  };
+
+  loadPreviewEPG();
+
+}, [gridFocusedIndex, selectedCategory]);
 
   // Handle active category defaulting based on active tab
   useEffect(() => {
@@ -323,7 +355,18 @@ if (result.success) {
     setSection(AppSection.Main);
     setActiveArea('sidebar');
   };
+const getProgramProgress = (start: string, end: string): number => {
 
+  const now = Date.now();
+  const startTime = new Date(start).getTime();
+  const endTime = new Date(end).getTime();
+
+  if (now <= startTime) return 0;
+  if (now >= endTime) return 100;
+
+  return ((now - startTime) / (endTime - startTime)) * 100;
+
+};
   // --- PLAYER TRIGGERS & PIN CHECK ---
   const triggerPlay = (item: IPTVItem, epId?: string) => {
     // Adult content parental PIN verification
@@ -1181,7 +1224,9 @@ if (
                           {filteredItems[gridFocusedIndex] ? (
                             (() => {
                               const focusedChannel = filteredItems[gridFocusedIndex];
+                              const currentProgram = getCurrentProgram(currentEPG);
                               const epgGuide = generateEPG(focusedChannel.id);
+                              const programNow = getCurrentProgram(currentEPG);
                               
                               return (
                                 <div className="flex flex-col h-full justify-between">
@@ -1202,7 +1247,9 @@ if (
 
                                     {/* Information text */}
                                     <h3 className="text-base font-display font-extrabold text-white leading-tight uppercase tracking-tight truncate">{focusedChannel.name}</h3>
-                                    <p className="text-white/30 text-[9px] font-mono font-bold uppercase tracking-widest mt-0.5">Guía de Canales (EPG)</p>
+                                    <p className="text-white/30 text-[9px] font-mono font-bold uppercase tracking-widest mt-0.5">
+  Guía en tiempo real
+</p>
 
                                     {/* Timeline Programs Checklist */}
                                     <div className="space-y-4 mt-6">
@@ -1211,13 +1258,28 @@ if (
                                       <div className="p-3 bg-[#0066FF]/10 border-l-4 border-[#0066FF] rounded-r-xl border-y border-r border-white/5">
                                         <div className="flex items-center justify-between text-[9px] font-mono font-bold text-[#0066FF] uppercase tracking-widest">
                                           <span>Ahora</span>
-                                          <span>{epgGuide[0]?.start} - {epgGuide[0]?.end}</span>
+                                          <span>
+                                        {programNow
+                                        ? `${formatEPGTime(programNow.start)} - ${formatEPGTime(programNow.end)}`
+                                        : `${epgGuide[0]?.start} - ${epgGuide[0]?.end}`}
+                                         </span>
                                         </div>
-                                        <p className="text-xs font-semibold text-white truncate mt-1">{epgGuide[0]?.title}</p>
-                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">{epgGuide[0]?.description}</p>
+                                        <p className="text-xs font-semibold text-white truncate mt-1">
+                                        {programNow?.title || epgGuide[0]?.title}
+                                        </p>
+                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">
+  {programNow?.description || epgGuide[0]?.description}
+</p>
                                         {/* Dynamic fake timeline progress */}
                                         <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden mt-2.5">
-                                          <div className="bg-[#0066FF] shadow-[0_0_8px_rgba(0,102,255,0.5)] h-full w-[45%]" />
+                                          <div
+  className="bg-[#0066FF] shadow-[0_0_8px_rgba(0,102,255,0.5)] h-full transition-all duration-500"
+  style={{
+    width: `${programNow
+      ? getProgramProgress(programNow.start, programNow.end)
+      : 45}%`,
+  }}
+/>
                                         </div>
                                       </div>
 
@@ -1225,20 +1287,36 @@ if (
                                       <div className="p-3 bg-[#141414]/30 border-l-4 border-white/5 rounded-r-xl border-y border-r border-white/5">
                                         <div className="flex items-center justify-between text-[9px] font-mono font-bold text-white/30 uppercase tracking-widest">
                                           <span>A continuación</span>
-                                          <span>{epgGuide[1]?.start} - {epgGuide[1]?.end}</span>
+                                         <span>
+  {currentEPG[1]
+    ? `${formatEPGTime(currentEPG[1].start)} - ${formatEPGTime(currentEPG[1].end)}`
+    : `${epgGuide[1]?.start} - ${epgGuide[1]?.end}`}
+</span>
                                         </div>
-                                        <p className="text-xs font-semibold text-white/80 truncate mt-1">{epgGuide[1]?.title}</p>
-                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">{epgGuide[1]?.description}</p>
+                                        <p className="text-xs font-semibold text-white truncate mt-1">
+  {currentEPG[1]?.title || epgGuide[1]?.title}
+</p>
+                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">
+  {currentEPG[1]?.description || epgGuide[1]?.description}
+</p>
                                       </div>
 
                                       {/* EPG 2: SIGUIENTE 2 */}
                                       <div className="p-3 bg-[#141414]/30 border-l-4 border-white/5 rounded-r-xl border-y border-r border-white/5">
                                         <div className="flex items-center justify-between text-[9px] font-mono font-bold text-white/30 uppercase tracking-widest">
                                           <span>Más tarde</span>
-                                          <span>{epgGuide[2]?.start} - {epgGuide[2]?.end}</span>
+                                          <span>
+  {currentEPG[2]
+    ? `${formatEPGTime(currentEPG[2].start)} - ${formatEPGTime(currentEPG[2].end)}`
+    : `${epgGuide[2]?.start} - ${epgGuide[2]?.end}`}
+</span>
                                         </div>
-                                        <p className="text-xs font-semibold text-white/60 truncate mt-1">{epgGuide[2]?.title}</p>
-                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">{epgGuide[2]?.description}</p>
+                                        <p className="text-xs font-semibold text-white/80 truncate mt-1">
+  {currentEPG[2]?.title || epgGuide[2]?.title}
+</p>
+                                        <p className="text-[10px] text-white/40 truncate mt-0.5 leading-relaxed">
+  {currentEPG[2]?.description || epgGuide[2]?.description}
+</p>
                                       </div>
 
                                     </div>

@@ -37,11 +37,11 @@ export async function fetchShortEPG(
 
     return data.epg_listings.map((epg: any) => ({
 
-  title: atob(epg.title),
+  title: decodeURIComponent(escape(atob(epg.title))),
 
-  description: epg.description
-    ? atob(epg.description)
-    : "",
+description: epg.description
+  ? decodeURIComponent(escape(atob(epg.description)))
+  : "",
 
   start: epg.start,
 
@@ -73,5 +73,17 @@ export function getCurrentProgram(epg: EPGEntry[]): EPGEntry | null {
   }
 
   return null;
+
+}
+export function formatEPGTime(dateString: string): string {
+
+  if (!dateString) return "--:--";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 }
