@@ -4,6 +4,7 @@ import { Play, Pause, RotateCcw, Volume2, Languages, ArrowLeft, Maximize2, SkipF
 import { IPTVItem, PlaybackProgress } from '../types';
 import { EPGEntry } from '../services/epg';
 import { storage } from '../utils';
+import { formatEPGTime } from "../services/epg";
 function getProgramProgress(start: string, end: string) {
   const now = Date.now();
   const s = new Date(start).getTime();
@@ -52,14 +53,34 @@ export default function Player({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [channelNumber, setChannelNumber] = useState("");
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgressTime, setSavedProgressTime] = useState(0);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [currentResolution, setCurrentResolution] = useState('1080p HD');
+  const [showChannelInfo, setShowChannelInfo] = useState(true);
   const [availableAudioTracks, setAvailableAudioTracks] = useState<string[]>(['Español (Latino)', 'Inglés (Original)']);
   const [activeAudioIndex, setActiveAudioIndex] = useState(0);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
+useEffect(() => {
 
+  if (!playerControlsVisible) return;
+
+  if (controlsTimeoutRef.current) {
+    clearTimeout(controlsTimeoutRef.current);
+  }
+
+  controlsTimeoutRef.current = setTimeout(() => {
+    setPlayerControlsVisible(false);
+  }, 4000);
+
+  return () => {
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+  };
+
+}, [playerControlsVisible, currentTime]);
   // Active stream URL (depends on whether it's a channel, movie or series episode)
   let streamUrl = item.streamUrl;
   let progressKey = item.id;
@@ -100,6 +121,12 @@ export default function Player({
     setCurrentTime(0);
     setDuration(0);
     setIsPlaying(true);
+    setShowChannelInfo(true);
+    setChannelNumber(item.streamId ?? "");
+
+setTimeout(() => {
+  setShowChannelInfo(false);
+}, 4000);
 
     // Load saved progress for movie/series auto-resume
     if (item.type !== 'live') {
@@ -382,25 +409,39 @@ export default function Player({
               <p className="text-white/30 text-[10px] font-bold font-mono uppercase tracking-widest">
                 {item.type === 'live' ? 'Televisión en Vivo' : item.type === 'movie' ? 'Cine Club' : 'Serie de TV'}
               </p>
-              <h2 className="text-xl font-display font-extrabold text-white tracking-tight uppercase mt-0.5">
-                {item.name} {item.type === 'series' && episodeId && ` - ${item.episodes?.find(e => e.id === episodeId)?.title}`}
-              </h2>
-            </div>
+              <div className="flex items-center gap-3 mt-0.5">
+  <span className="px-2 py-1 rounded-md bg-[#0066FF] text-white text-[10px] font-mono font-bold">
+    {Number(channelNumber) > 0 ? `CH ${channelNumber}` : "LIVE"}
+  </span>
+
+  <h2 className="text-xl font-display font-extrabold text-white tracking-tight uppercase">
+    {item.name} {item.type === 'series' && episodeId && ` - ${item.episodes?.find(e => e.id === episodeId)?.title}`}
+  </h2>
+</div>
+                
+          </div>
           </div>
 
           {/* Stream specs */}
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider shadow-[0_0_10px_rgba(0,102,255,0.1)]">
-              {currentResolution}
-            </span>
-            <span className="px-3 py-1.5 bg-white/5 border border-white/5 text-white/40 text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider">
-              {item.type === 'live' ? 'STREAM EN VIVO' : 'HLS VOD'}
-            </span>
-          </div>
+
+  <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider shadow-[0_0_10px_rgba(0,102,255,0.1)]">
+    {currentResolution}
+  </span>
+
+  <span className="px-3 py-1.5 bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider">
+    {item.type === "live" ? "LIVE" : "VOD"}
+  </span>
+
+  <span className="px-3 py-1.5 bg-white/5 border border-white/5 text-white/40 text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider">
+    {item.type === "live" ? "STREAM EN VIVO" : "HLS VOD"}
+  </span>
+
+</div>
         </div>
 
       {/* HUD Center Info Panel (EPG REAL) */}
-{item.type === 'live' && (
+{item.type === 'live' && (playerControlsVisible || showChannelInfo) && (
   <div className="self-start max-w-lg ml-16 mt-6 bg-[#0C0C0C]/80 border border-white/5 rounded-2xl p-5 backdrop-blur-md">
 
     {loadingEPG ? (
@@ -418,16 +459,10 @@ export default function Player({
         </h3>
 
         <p className="text-xs text-white/50 mt-1">
-          {new Date(currentEPG[0].start).toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-})}
-{" - "}
-{new Date(currentEPG[0].end).toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-})}
-        </p>
+  {formatEPGTime(currentEPG[0].start)}
+  {" - "}
+  {formatEPGTime(currentEPG[0].end)}
+</p>
 <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
   <div
     className="h-full bg-[#0066FF] transition-all duration-500"
@@ -454,16 +489,10 @@ export default function Player({
             </p>
 
             <p className="text-xs text-white/50">
-              {new Date(currentEPG[1].start).toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-})}
-{" - "}
-{new Date(currentEPG[1].end).toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-})}
-            </p>
+  {formatEPGTime(currentEPG[1].start)}
+  {" - "}
+  {formatEPGTime(currentEPG[1].end)}
+</p>
           </div>
         )}
       </>
