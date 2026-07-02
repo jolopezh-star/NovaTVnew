@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Tv, Film, Play, Heart, Clock, Search, Settings, 
   Lock, Unlock, LogOut, Check, Sliders, ChevronRight, 
@@ -44,6 +44,7 @@ export default function App() {
   // --- CONTENT DATA STATES ---
   const [categories, setCategories] = useState<Category[]>(DEMO_CATEGORIES);
   const [items, setItems] = useState<IPTVItem[]>(DEMO_ITEMS);
+  const [epgCache, setEpgCache] = useState<Record<string, EPGEntry[]>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('live-news');
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -75,7 +76,7 @@ export default function App() {
   const [activeEpisodeId, setActiveEpisodeId] = useState<string>('');
   const [currentEPG, setCurrentEPG] = useState<EPGEntry[]>([]);
 const [loadingEPG, setLoadingEPG] = useState(false);
-const [epgCache, setEpgCache] = useState<Record<string, EPGEntry[]>>({});
+
 
   // --- SERIES DETAIL STATE ---
   const [activeSeriesDetail, setActiveSeriesDetail] = useState<IPTVItem | null>(null);
@@ -158,13 +159,21 @@ const [epgCache, setEpgCache] = useState<Record<string, EPGEntry[]>>({});
     if (!creds) return;
 
     setLoadingEPG(true);
-
+if (epgCache[activePlayItem.streamId!]) {
+  setCurrentEPG(epgCache[activePlayItem.streamId!]);
+  setLoadingEPG(false);
+  return;
+}
     const epg = await fetchShortEPG(
       creds,
       activePlayItem.streamId!
     );
 
     setCurrentEPG(epg);
+    setEpgCache(prev => ({
+  ...prev,
+  [activePlayItem.streamId!]: epg,
+}));
     setLoadingEPG(false);
 
     console.log("EPG recibido:", epg);
@@ -181,7 +190,15 @@ useEffect(() => {
   const channel = filteredItems[gridFocusedIndex];
 
   if (!channel?.streamId) return;
+  if (epgCache[channel.streamId]) {
+  setCurrentEPG(epgCache[channel.streamId]);
+  return;
+}
+const timer = setTimeout(() => {
+  loadPreviewEPG();
+}, 250);
 
+return () => clearTimeout(timer);
   const loadPreviewEPG = async () => {
 
     const creds = storage.getCredentials();
@@ -195,11 +212,16 @@ useEffect(() => {
 
     setCurrentEPG(epg);
 
+setEpgCache(prev => ({
+  ...prev,
+  [channel.streamId!]: epg,
+}));
+
   };
 
-  loadPreviewEPG();
+  
 
-}, [gridFocusedIndex, selectedCategory]);
+}, [gridFocusedIndex, selectedCategory, activeTab]);
 
   // Handle active category defaulting based on active tab
   useEffect(() => {
@@ -241,7 +263,18 @@ useEffect(() => {
     return result;
   };
 
-  const filteredItems = getFilteredItems();
+  const filteredItems = useMemo(
+  () => getFilteredItems(),
+  [
+    items,
+    activeTab,
+    selectedCategory,
+    favorites,
+    progress,
+    searchQuery,
+    settings.hiddenCategories,
+  ]
+);
   const activeCategoriesOfTab = categories.filter(c => {
     if (activeTab === SidebarTab.Live) return c.type === 'live';
     if (activeTab === SidebarTab.Movies) return c.type === 'movie';
@@ -368,6 +401,26 @@ const getProgramProgress = (start: string, end: string): number => {
 
 };
   // --- PLAYER TRIGGERS & PIN CHECK ---
+  const changeChannel = (direction: 1 | -1) => {
+
+  if (!activePlayItem || activePlayItem.type !== "live") return;
+
+  const liveChannels = filteredItems.filter(i => i.type === "live");
+
+  const index = liveChannels.findIndex(
+    c => c.id === activePlayItem.id
+  );
+
+  if (index === -1) return;
+
+  let next = index + direction;
+
+  if (next < 0) next = liveChannels.length - 1;
+  if (next >= liveChannels.length) next = 0;
+
+  triggerPlay(liveChannels[next]);
+
+};
   const triggerPlay = (item: IPTVItem, epId?: string) => {
     // Adult content parental PIN verification
     if (item.category === 'live-adult' && settings.isAdultPinLocked && settings.adultPin) {
@@ -767,9 +820,11 @@ if (
         } else if (e.key === 'ArrowLeft') {
           setPlayerControlFocusedIndex(prev => (prev - 1 + 7) % 7);
         } else if (e.key === 'ArrowUp') {
-          // Hide controls on ArrowUp
-          setPlayerControlsVisible(false);
-        } else if (e.key === 'Backspace' || e.key === 'Escape') {
+  changeChannel(-1);
+}
+else if (e.key === 'ArrowDown') {
+  changeChannel(1);
+} else if (e.key === 'Backspace' || e.key === 'Escape') {
           setSection(AppSection.Main);
         }
       }
@@ -1197,6 +1252,8 @@ if (
                                   <img 
                                     src={item.logo} 
                                     alt={item.name} 
+                                    loading="lazy"
+                                    decoding="async"
                                     className="h-full w-full object-cover"
                                     referrerPolicy="no-referrer"
                                   />
@@ -1224,9 +1281,9 @@ if (
                           {filteredItems[gridFocusedIndex] ? (
                             (() => {
                               const focusedChannel = filteredItems[gridFocusedIndex];
-                              const currentProgram = getCurrentProgram(currentEPG);
-                              const epgGuide = generateEPG(focusedChannel.id);
-                              const programNow = getCurrentProgram(currentEPG);
+                              
+                              const epgGuide = currentEPG.length > 0 ? currentEPG : generateEPG(focusedChannel.id);
+                              const programNow = getCurrentProgram(epgGuide);
                               
                               return (
                                 <div className="flex flex-col h-full justify-between">
@@ -1236,6 +1293,9 @@ if (
                                       <img 
                                         src={focusedChannel.logo} 
                                         alt={focusedChannel.name} 
+                                        onError={(e) => {
+                                        e.currentTarget.src = "/channel-placeholder.png";
+                                        }}
                                         className="h-16 w-16 rounded-xl object-cover shadow-lg border border-white/10"
                                         referrerPolicy="no-referrer"
                                       />
@@ -1328,7 +1388,7 @@ if (
                                     className="w-full mt-6 bg-[#141414] text-white/60 border border-white/5 font-display uppercase tracking-widest text-[10px] font-bold py-3.5 rounded-xl transition-all duration-200 outline-none flex items-center justify-center gap-2 hover:bg-white hover:text-black hover:border-transparent"
                                   >
                                     <Play className="w-4 h-4 fill-current" />
-                                    Ver en Pantalla Completa
+                                    Reproducir canal
                                   </button>
                                 </div>
                               );
