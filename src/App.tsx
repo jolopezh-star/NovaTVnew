@@ -405,9 +405,10 @@ const getProgramProgress = (start: string, end: string): number => {
 
   if (!activePlayItem || activePlayItem.type !== "live") return;
 
-  const liveChannels = filteredItems.filter(i => i.type === "live");
+  const liveChannels = getFilteredItems().filter(i => i.type === "live");
 
   const index = liveChannels.findIndex(
+    
     c => c.id === activePlayItem.id
   );
 
@@ -417,8 +418,14 @@ const getProgramProgress = (start: string, end: string): number => {
 
   if (next < 0) next = liveChannels.length - 1;
   if (next >= liveChannels.length) next = 0;
+setPlayerControlsVisible(false);
+  setGridFocusedIndex(next);
+  setCurrentEPG([]);
 
-  triggerPlay(liveChannels[next]);
+requestAnimationFrame(() => {
+  setActivePlayItem(liveChannels[next]);
+});
+  
 
 };
   const triggerPlay = (item: IPTVItem, epId?: string) => {
@@ -431,7 +438,8 @@ const getProgramProgress = (start: string, end: string): number => {
       setSection(AppSection.PinLock);
       return;
     }
-
+const img = new Image();
+  img.src = item.logo;
     setActivePlayItem(item);
     if (epId) setActiveEpisodeId(epId);
     setPlayerControlFocusedIndex(0);

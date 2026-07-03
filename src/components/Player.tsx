@@ -48,16 +48,20 @@ export default function Player({
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+const zapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+const channelInfoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [channelNumber, setChannelNumber] = useState("");
+  const [showZapBanner, setShowZapBanner] = useState(false);
+  const [lastChannelLogo, setLastChannelLogo] = useState("");
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgressTime, setSavedProgressTime] = useState(0);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [currentResolution, setCurrentResolution] = useState('1080p HD');
+  const [buffering, setBuffering] = useState(false);
   const [showChannelInfo, setShowChannelInfo] = useState(true);
   const [availableAudioTracks, setAvailableAudioTracks] = useState<string[]>(['Español (Latino)', 'Inglés (Original)']);
   const [activeAudioIndex, setActiveAudioIndex] = useState(0);
@@ -121,10 +125,22 @@ useEffect(() => {
     setCurrentTime(0);
     setDuration(0);
     setIsPlaying(true);
+    if (channelInfoTimeoutRef.current) {
+  clearTimeout(channelInfoTimeoutRef.current);
+}
     setShowChannelInfo(true);
+    if (zapTimeoutRef.current) {
+  clearTimeout(zapTimeoutRef.current);
+}
+setLastChannelLogo(item.logo);
+setShowZapBanner(true);
+
+zapTimeoutRef.current = setTimeout(() => {
+  setShowZapBanner(false);
+}, 1500);
     setChannelNumber(item.streamId ?? "");
 
-setTimeout(() => {
+channelInfoTimeoutRef.current = setTimeout(() => {
   setShowChannelInfo(false);
 }, 4000);
 
@@ -175,6 +191,13 @@ setTimeout(() => {
     }
 
     return () => {
+      if (zapTimeoutRef.current) {
+  clearTimeout(zapTimeoutRef.current);
+}
+
+if (channelInfoTimeoutRef.current) {
+  clearTimeout(channelInfoTimeoutRef.current);
+}
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
@@ -346,12 +369,22 @@ setTimeout(() => {
       {/* HTML5 Video Element */}
       <video
         ref={videoRef}
+        onWaiting={() => setBuffering(true)}
+onPlaying={() => setBuffering(false)}
+        playsInline
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         className="w-full h-full object-contain"
         onClick={() => setPlayerControlsVisible(!playerControlsVisible)}
       />
-
+{buffering && (
+  <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-50">
+    <p className="absolute mt-24 text-white/80 text-sm font-semibold">
+  Cargando...
+</p>
+    <div className="w-12 h-12 border-4 border-white/20 border-t-[#0066FF] rounded-full animate-spin" />
+  </div>
+)}
       {/* Embedded Subtitles Simulation */}
       {subtitlesEnabled && item.type !== 'live' && (
         <div className="absolute bottom-28 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-black/80 backdrop-blur-sm border border-zinc-900 rounded-xl text-center text-white font-medium text-lg tracking-wide z-10">
@@ -394,6 +427,29 @@ setTimeout(() => {
           playerControlsVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
+        {showZapBanner && item.type === "live" && (
+  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-2xl backdrop-blur-md z-50 animate-pulse">
+
+    <img
+      src={lastChannelLogo || item.logo}
+      loading="eager"
+      alt={item.name}
+      className="w-12 h-12 rounded-lg object-cover bg-[#141414]"
+      referrerPolicy="no-referrer"
+    />
+
+    <div>
+      <div className="text-[10px] text-[#0066FF] font-mono uppercase font-bold">
+        {Number(channelNumber) > 0 ? `CH ${channelNumber}` : "LIVE"}
+      </div>
+
+      <div className="text-white font-bold text-lg truncate max-w-sm">
+        {item.name}
+      </div>
+    </div>
+
+  </div>
+)}
         {/* HUD Top Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
