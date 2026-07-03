@@ -54,15 +54,70 @@ const channelInfoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const showVolumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [channelNumber, setChannelNumber] = useState("");
   const [showZapBanner, setShowZapBanner] = useState(false);
+  const [channelListVisible, setChannelListVisible] = useState(false);
+  const [selectedChannelIndex, setSelectedChannelIndex] = useState(0);
+  const channelListTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [channelPreviewIndex, setChannelPreviewIndex] = useState(0);
+  const [previewChannels, setPreviewChannels] = useState<IPTVItem[]>([]);
+  const [previewChannel, setPreviewChannel] = useState<IPTVItem | null>(null);
+  const [previewEPG, setPreviewEPG] = useState<EPGEntry[]>([]);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewLogo, setPreviewLogo] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewNumber, setPreviewNumber] = useState("");
+  const [previewDescription, setPreviewDescription] = useState("");
+  const [previewStart, setPreviewStart] = useState("");
+  const [previewEnd, setPreviewEnd] = useState("");
+  const [previewProgress, setPreviewProgress] = useState(0);
+  const [previewCategory, setPreviewCategory] = useState("");
+  const [previewFavorite, setPreviewFavorite] = useState(false);
+  const [previewResolution, setPreviewResolution] = useState("");
+  const [previewAudio, setPreviewAudio] = useState("");
+  const [previewCodec, setPreviewCodec] = useState("");
+  const [previewBitrate, setPreviewBitrate] = useState("");
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewLogoLoaded, setPreviewLogoLoaded] = useState(false);
+  const [previewHasEPG, setPreviewHasEPG] = useState(false);
+  const [previewIsHD, setPreviewIsHD] = useState(false);
+  const [previewIsFavorite, setPreviewIsFavorite] = useState(false);
+  const [previewVisibleTimeout, setPreviewVisibleTimeout] = useState(2000);
+const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const [nextChannelName, setNextChannelName] = useState("");
   const [lastChannelLogo, setLastChannelLogo] = useState("");
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgressTime, setSavedProgressTime] = useState(0);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [currentResolution, setCurrentResolution] = useState('1080p HD');
   const [buffering, setBuffering] = useState(false);
+  const [showVolume, setShowVolume] = useState(false);
+  const showBrightnessTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [volume, setVolume] = useState(100);
+  const [brightness, setBrightness] = useState(100);
+  const [showBrightness, setShowBrightness] = useState(false);
+  const [clock, setClock] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
+  
+  useEffect(() => {
+  const timer = setInterval(() => {
+    const now = new Date();
+    setClock(now);
+    setCurrentDate(now);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+  
   const [showChannelInfo, setShowChannelInfo] = useState(true);
+  const [currentBitrate, setCurrentBitrate] = useState("AUTO");
+  const [audioCodec, setAudioCodec] = useState("AAC");
+  const [codec, setCodec] = useState("H.264");
+  const [streamType, setStreamType] = useState("HLS");
+  const [latency] = useState("LOW LATENCY");
+  const [playerEngine] = useState("HLS.js");
   const [availableAudioTracks, setAvailableAudioTracks] = useState<string[]>(['Español (Latino)', 'Inglés (Original)']);
   const [activeAudioIndex, setActiveAudioIndex] = useState(0);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
@@ -139,6 +194,28 @@ zapTimeoutRef.current = setTimeout(() => {
   setShowZapBanner(false);
 }, 1500);
     setChannelNumber(item.streamId ?? "");
+    setPreviewChannel(item);
+setPreviewLogo(item.logo);
+setPreviewTitle(item.name);
+setPreviewNumber(item.streamId ?? "");
+setPreviewVisible(true);
+setPreviewProgress(
+  currentEPG.length > 0
+    ? getProgramProgress(currentEPG[0].start, currentEPG[0].end)
+    : 0
+);
+setPreviewEPG(currentEPG);
+if (currentEPG.length > 0) {
+  setPreviewDescription(currentEPG[0].description);
+}
+if (previewTimeoutRef.current) {
+  clearTimeout(previewTimeoutRef.current);
+}
+
+previewTimeoutRef.current = setTimeout(() => {
+  setPreviewVisible(false);
+}, 2500);
+
 
 channelInfoTimeoutRef.current = setTimeout(() => {
   setShowChannelInfo(false);
@@ -175,6 +252,9 @@ channelInfoTimeoutRef.current = setTimeout(() => {
           const level = hls.levels[data.level];
           if (level && level.height) {
             setCurrentResolution(`${level.height}p`);
+            setCurrentBitrate(
+  `${Math.round((level.bitrate || 0) / 1000)} kbps`
+);
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -235,16 +315,22 @@ if (channelInfoTimeoutRef.current) {
 
   // Track state updates
   const handleTimeUpdate = () => {
+    const video = videoRef.current;
+if (!video) return;
+
+
+setVolume(Math.round(video.volume * 100));
     if (videoRef.current) {
       setCurrentTime(videoRef.current.currentTime);
     }
   };
 
   const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0);
-    }
-  };
+  if (videoRef.current) {
+    setDuration(videoRef.current.duration || 0);
+    setVolume(Math.round(videoRef.current.volume * 100));
+  }
+};
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -267,11 +353,24 @@ if (channelInfoTimeoutRef.current) {
   };
 
   const toggleMute = () => {
+    const changeBrightness = (delta: number) => {
+  setBrightness(prev => Math.max(30, Math.min(150, prev + delta)));
+};
     const video = videoRef.current;
     if (!video) return;
     video.muted = !isMuted;
     setIsMuted(!isMuted);
+    setVolume(Math.round(video.volume * 100));
     resetControlsTimeout();
+    setShowVolume(true);
+
+if (showVolumeTimeoutRef.current) {
+  clearTimeout(showVolumeTimeoutRef.current);
+}
+
+showVolumeTimeoutRef.current = setTimeout(() => {
+  setShowVolume(false);
+}, 1500);
   };
 
   const handleAudioTrackToggle = () => {
@@ -374,15 +473,31 @@ onPlaying={() => setBuffering(false)}
         playsInline
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
-        className="w-full h-full object-contain"
+        style={{ filter: `brightness(${brightness}%)` }}
+className="w-full h-full object-contain transition-all duration-150"
         onClick={() => setPlayerControlsVisible(!playerControlsVisible)}
       />
 {buffering && (
+  
   <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-50">
     <p className="absolute mt-24 text-white/80 text-sm font-semibold">
   Cargando...
 </p>
     <div className="w-12 h-12 border-4 border-white/20 border-t-[#0066FF] rounded-full animate-spin" />
+  </div>
+)}
+{showVolume && (
+  <div className="absolute right-8 top-1/2 -translate-y-1/2 bg-black/80 rounded-2xl p-4 z-50 w-20">
+    <div className="text-center text-white text-sm font-bold mb-3">
+      {volume}%
+    </div>
+
+    <div className="h-40 w-2 mx-auto bg-white/20 rounded-full overflow-hidden">
+      <div
+        className="bg-[#0066FF] w-full transition-all"
+        style={{ height: `${volume}%`, marginTop: `${100 - volume}%` }}
+      />
+    </div>
   </div>
 )}
       {/* Embedded Subtitles Simulation */}
@@ -449,6 +564,50 @@ onPlaying={() => setBuffering(false)}
     </div>
 
   </div>
+)}{previewVisible && previewChannel && (
+  <div className="absolute right-8 top-24 w-80 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl p-5 backdrop-blur-md z-40">
+
+    <div className="flex gap-4 items-center">
+      <img
+        src={previewLogo}
+        alt=""
+        className="w-14 h-14 rounded-lg object-contain bg-[#141414]"
+      />
+
+      <div>
+        <div className="text-[#0066FF] text-xs font-mono font-bold">
+          CH {previewNumber}
+        </div>
+
+        <div className="text-white font-bold">
+          {previewTitle}
+        </div>
+<div className="text-[10px] text-white/40 mt-1">
+  {previewDescription}
+</div>
+        {previewEPG.length > 0 && (
+          <>
+            <div className="text-xs text-white/70 mt-2">
+              {previewEPG[0].title}
+            </div>
+
+            <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#0066FF]"
+                style={{
+                  width: `${getProgramProgress(
+                    previewEPG[0].start,
+                    previewEPG[0].end
+                  )}%`,
+                }}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+
+  </div>
 )}
         {/* HUD Top Header */}
         <div className="flex items-center justify-between">
@@ -492,7 +651,53 @@ onPlaying={() => setBuffering(false)}
   <span className="px-3 py-1.5 bg-white/5 border border-white/5 text-white/40 text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider">
     {item.type === "live" ? "STREAM EN VIVO" : "HLS VOD"}
   </span>
+<div className="flex flex-col items-center px-3 py-1.5 bg-white/5 border border-white/5 rounded-lg">
+  <span className="text-[10px] text-white/80 font-mono">
+    {clock.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })}
+  </span>
 
+  <span className="text-[9px] text-white/40">
+    {currentDate.toLocaleDateString()}
+  </span>
+
+  <div className="flex flex-col items-center">
+  <span className="text-[9px] text-[#0066FF] font-mono">
+    {item.type === "live"
+      ? `LIVE • ${currentResolution}`
+      : `VOD • ${currentResolution}`}
+  </span>
+
+  <span className="text-[8px] text-white/40 font-mono">
+    {currentBitrate}
+  </span>
+
+  <div className="flex flex-col items-center">
+  <div className="flex gap-2">
+    <span className="text-[8px] text-white/30 font-mono">
+      {codec}
+    </span>
+
+    <span className="text-[8px] text-[#0066FF] font-mono">
+      {streamType}
+    </span>
+  </div>
+
+  <div className="flex gap-2">
+  <span className="text-[8px] text-green-400 font-mono">
+    {latency}
+  </span>
+
+  <span className="text-[8px] text-white/40 font-mono">
+    {playerEngine}
+  </span>
+</div>
+</div>
+</div>
+</div>
 </div>
         </div>
 
