@@ -247,7 +247,41 @@ export async function fetchXtreamVodStreams(creds: XtreamCredentials): Promise<I
     return [];
   }
 }
+export async function fetchXtreamSeriesStreams(creds: XtreamCredentials): Promise<IPTVItem[]> {
+  const cleanUrl =
+    window.location.hostname === 'localhost'
+      ? '/xtream'
+      : creds.url.replace(/\/$/, '');
 
+  const url = `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}&password=${encodeURIComponent(creds.password)}&action=get_series`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    console.log("SERIES XTREAM:", data);
+
+    if (Array.isArray(data)) {
+      return data.map((item: any) => ({
+        id: `series-${item.series_id}`,
+        name: item.name,
+        logo: item.cover || item.stream_icon || '',
+        streamUrl: '',
+        category: `xtream-series-${item.category_id}`,
+        type: 'series',
+        year: item.year,
+        genre: item.genre,
+        rating: item.rating,
+      }));
+    }
+
+    return [];
+  } catch (e) {
+    console.error('Error fetching Series:', e);
+    return [];
+  }
+}
 // Helpers for localStorage persistence
 export const storage = {
   getCredentials: (): XtreamCredentials | null => {

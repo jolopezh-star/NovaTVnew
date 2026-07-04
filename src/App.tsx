@@ -11,9 +11,14 @@ import {
 import { 
   DEMO_CATEGORIES, DEMO_ITEMS, generateEPG 
 } from './data/demoData';
-import { 
-  parseM3U, testXtreamConnection, fetchXtreamCategories, 
-  fetchXtreamLiveStreams, fetchXtreamVodStreams, storage 
+import {
+  parseM3U,
+  testXtreamConnection,
+  fetchXtreamCategories,
+  fetchXtreamLiveStreams,
+  fetchXtreamVodStreams,
+  fetchXtreamSeriesStreams,
+  storage
 } from './utils';
 
 import Sidebar from './components/Sidebar';
@@ -310,16 +315,28 @@ if (result.success) {
         setIsDemoMode(false);
         
         // Fetch Live/VOD categories & streams
-        const [liveCats, vodCats, seriesCats, liveStreams, vodStreams] = await Promise.all([
+        const [
+  liveCats,
+  vodCats,
+  seriesCats,
+  liveStreams,
+  vodStreams,
+  seriesStreams
+] = await Promise.all([
           fetchXtreamCategories(creds, 'get_live_categories'),
           fetchXtreamCategories(creds, 'get_vod_categories'),
           fetchXtreamCategories(creds, 'get_series_categories'),
           fetchXtreamLiveStreams(creds),
-          fetchXtreamVodStreams(creds)
+fetchXtreamVodStreams(creds),
+fetchXtreamSeriesStreams(creds)
         ]);
 
         const mergedCats = [...liveCats, ...vodCats, ...seriesCats];
-        const mergedStreams = [...liveStreams, ...vodStreams];
+        const mergedStreams = [
+  ...liveStreams,
+  ...vodStreams,
+  ...seriesStreams
+];
 
         if (mergedCats.length > 0) setCategories(mergedCats);
         if (mergedStreams.length > 0) setItems(mergedStreams);
