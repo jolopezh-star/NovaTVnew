@@ -93,6 +93,7 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [currentResolution, setCurrentResolution] = useState('1080p HD');
   const [buffering, setBuffering] = useState(false);
+  const [bufferPercent, setBufferPercent] = useState(0);
   const [showVolume, setShowVolume] = useState(false);
   const showBrightnessTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [volume, setVolume] = useState(100);
@@ -121,25 +122,7 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [availableAudioTracks, setAvailableAudioTracks] = useState<string[]>(['Español (Latino)', 'Inglés (Original)']);
   const [activeAudioIndex, setActiveAudioIndex] = useState(0);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
-useEffect(() => {
 
-  if (!playerControlsVisible) return;
-
-  if (controlsTimeoutRef.current) {
-    clearTimeout(controlsTimeoutRef.current);
-  }
-
-  controlsTimeoutRef.current = setTimeout(() => {
-    setPlayerControlsVisible(false);
-  }, 4000);
-
-  return () => {
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current);
-    }
-  };
-
-}, [playerControlsVisible, currentTime]);
   // Active stream URL (depends on whether it's a channel, movie or series episode)
   let streamUrl = item.streamUrl;
   let progressKey = item.id;
@@ -158,8 +141,9 @@ useEffect(() => {
       clearTimeout(controlsTimeoutRef.current);
     }
     controlsTimeoutRef.current = setTimeout(() => {
-      setPlayerControlsVisible(false);
-    }, 5000);
+  
+  setPlayerControlsVisible(false);
+}, 5000);
   };
 
   useEffect(() => {
@@ -195,16 +179,22 @@ zapTimeoutRef.current = setTimeout(() => {
 }, 1500);
     setChannelNumber(item.streamId ?? "");
     setPreviewChannel(item);
+    
 setPreviewLogo(item.logo);
 setPreviewTitle(item.name);
 setPreviewNumber(item.streamId ?? "");
 setPreviewVisible(true);
+setPlayerControlsVisible(true);
+
+
+resetControlsTimeout();
 setPreviewProgress(
   currentEPG.length > 0
     ? getProgramProgress(currentEPG[0].start, currentEPG[0].end)
     : 0
 );
 setPreviewEPG(currentEPG);
+setPreviewHasEPG(currentEPG.length > 0);
 if (currentEPG.length > 0) {
   setPreviewDescription(currentEPG[0].description);
 }
@@ -283,7 +273,7 @@ if (channelInfoTimeoutRef.current) {
         hlsRef.current = null;
       }
     };
-  }, [streamUrl, item, progressKey]);
+  }, [streamUrl, progressKey]);
 
   // Periodically save playback progress (every 4 seconds) for auto-resume
   useEffect(() => {
@@ -317,6 +307,14 @@ if (channelInfoTimeoutRef.current) {
   const handleTimeUpdate = () => {
     const video = videoRef.current;
 if (!video) return;
+if (video.buffered.length > 0) {
+  const end = video.buffered.end(video.buffered.length - 1);
+  const percent = video.duration
+    ? Math.min(100, (end / video.duration) * 100)
+    : 0;
+
+  setBufferPercent(Math.round(percent));
+}
 
 
 setVolume(Math.round(video.volume * 100));
@@ -468,8 +466,16 @@ showVolumeTimeoutRef.current = setTimeout(() => {
       {/* HTML5 Video Element */}
       <video
         ref={videoRef}
-        onWaiting={() => setBuffering(true)}
-onPlaying={() => setBuffering(false)}
+        onWaiting={() => {
+  setBuffering(true);
+  setBufferPercent(0);
+}}
+
+onPlaying={() => {
+  setBuffering(false);
+  setBufferPercent(100);
+}}
+
         playsInline
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
@@ -481,11 +487,21 @@ className="w-full h-full object-contain transition-all duration-150"
   
   <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-50">
     <p className="absolute mt-24 text-white/80 text-sm font-semibold">
-  Cargando...
+  Cargando... {bufferPercent}%
 </p>
-    <div className="w-12 h-12 border-4 border-white/20 border-t-[#0066FF] rounded-full animate-spin" />
+    <div className="flex flex-col items-center gap-4">
+  <div className="w-12 h-12 border-4 border-white/20 border-t-[#0066FF] rounded-full animate-spin" />
+
+  <div className="w-56 h-2 bg-white/10 rounded-full overflow-hidden">
+    <div
+      className="h-full bg-[#0066FF] transition-all duration-300"
+      style={{ width: `${bufferPercent}%` }}
+    />
+  </div>
+</div>
   </div>
 )}
+
 {showVolume && (
   <div className="absolute right-8 top-1/2 -translate-y-1/2 bg-black/80 rounded-2xl p-4 z-50 w-20">
     <div className="text-center text-white text-sm font-bold mb-3">
@@ -509,7 +525,7 @@ className="w-full h-full object-contain transition-all duration-150"
 
       {/* Auto Resume Toast Alert */}
       {showResumePrompt && (
-        <div className="absolute top-10 right-10 bg-[#0C0C0C]/95 border border-white/5 rounded-2xl p-4 shadow-[0_15px_40px_rgba(0,0,0,0.9)] flex flex-col gap-3 max-w-sm z-50 animate-bounce">
+        <div className="absolute top-10 right-10 bg-[#0C0C0C]/90 border border-white/5 rounded-2xl p-4 shadow-[0_15px_40px_rgba(0,0,0,0.9)] flex flex-col gap-3 max-w-sm z-50 animate-bounce">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#0066FF]/10 rounded-lg text-[#0066FF]">
               <RotateCcw className="w-5 h-5" />
@@ -565,33 +581,67 @@ className="w-full h-full object-contain transition-all duration-150"
 
   </div>
 )}{previewVisible && previewChannel && (
-  <div className="absolute right-8 top-24 w-80 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl p-5 backdrop-blur-md z-40">
+  <div className="absolute right-8 top-20 w-96 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl p-5 backdrop-blur-md shadow-2xl z-40">
 
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-5 items-start">
       <img
         src={previewLogo}
         alt=""
-        className="w-14 h-14 rounded-lg object-contain bg-[#141414]"
+        className="w-20 h-20 rounded-xl object-contain bg-[#141414] border border-white/10 p-2 shadow-lg"
       />
 
       <div>
-        <div className="text-[#0066FF] text-xs font-mono font-bold">
-          CH {previewNumber}
-        </div>
+        <div className="flex items-center gap-2">
+  <span className="px-2 py-0.5 rounded bg-[#0066FF] text-white text-[9px] font-mono font-bold">
+    CH {previewNumber}
+  </span>
 
-        <div className="text-white font-bold">
-          {previewTitle}
-        </div>
-<div className="text-[10px] text-white/40 mt-1">
-  {previewDescription}
+  <span className="text-[9px] text-green-400 font-semibold">
+    EN VIVO
+  </span>
 </div>
+
+        <div className="text-white font-bold text-lg leading-tight">
+  {previewTitle}
+</div>
+        <div className="flex items-center gap-2 mt-2">
+  <span className="px-2 py-0.5 rounded bg-[#0066FF]/20 text-[#4DA3FF] text-[9px] font-mono">
+    {currentResolution}
+  </span>
+
+  <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[9px] font-mono">
+    {currentBitrate}
+  </span>
+</div>
+        <div className="text-xs text-white/50 mt-1">
+  {previewNumber && `Canal ${previewNumber}`}
+</div>
+<p className="text-[10px] text-white/40 mt-1 line-clamp-2">
+  {previewDescription}
+</p>
         {previewEPG.length > 0 && (
           <>
-            <div className="text-xs text-white/70 mt-2">
+            <div className="text-sm font-semibold text-white mt-2">
               {previewEPG[0].title}
             </div>
+            <div className="text-[10px] text-white/40 mt-1">
+  {formatEPGTime(previewEPG[0].start)} - {formatEPGTime(previewEPG[0].end)}
+</div>
+<div className="text-[10px] text-white/40 mt-1"></div>
+<div className="text-[10px] text-[#0066FF] mt-1 font-semibold">
+  {Math.round(previewProgress)}% del programa
+</div>
+<div className="flex items-center justify-between mt-1">
+  <span className="text-[9px] text-green-400">
+    {playerEngine}
+  </span>
 
-            <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
+  <span className="text-[9px] text-[#0066FF]">
+    {latency}
+  </span>
+</div>
+
+            <div className="mt-2 h-2 bg-white/10 rounded-full overflow-hidden">
               <div
                 className="h-full bg-[#0066FF]"
                 style={{
@@ -651,7 +701,7 @@ className="w-full h-full object-contain transition-all duration-150"
   <span className="px-3 py-1.5 bg-white/5 border border-white/5 text-white/40 text-[10px] font-bold font-mono uppercase rounded-lg tracking-wider">
     {item.type === "live" ? "STREAM EN VIVO" : "HLS VOD"}
   </span>
-<div className="flex flex-col items-center px-3 py-1.5 bg-white/5 border border-white/5 rounded-lg">
+<div className="flex flex-col items-start px-3 py-1.5 bg-white/5 border border-white/5 rounded-lg">
   <span className="text-[10px] text-white/80 font-mono">
     {clock.toLocaleTimeString([], {
       hour: "2-digit",

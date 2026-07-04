@@ -194,11 +194,7 @@ useEffect(() => {
   setCurrentEPG(epgCache[channel.streamId]);
   return;
 }
-const timer = setTimeout(() => {
-  loadPreviewEPG();
-}, 250);
 
-return () => clearTimeout(timer);
   const loadPreviewEPG = async () => {
 
     const creds = storage.getCredentials();
@@ -218,6 +214,11 @@ setEpgCache(prev => ({
 }));
 
   };
+  const timer = setTimeout(() => {
+  loadPreviewEPG();
+}, 250);
+
+return () => clearTimeout(timer);
 
   
 
@@ -423,7 +424,9 @@ setPlayerControlsVisible(false);
   setCurrentEPG([]);
 
 requestAnimationFrame(() => {
+  
   setActivePlayItem(liveChannels[next]);
+  setPlayerControlsVisible(false);
 });
   
 
