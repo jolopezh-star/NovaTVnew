@@ -171,6 +171,7 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     if (zapTimeoutRef.current) {
   clearTimeout(zapTimeoutRef.current);
 }
+setShowZapBanner(false);
 setLastChannelLogo(item.logo);
 setShowZapBanner(true);
 
@@ -204,12 +205,12 @@ if (previewTimeoutRef.current) {
 
 previewTimeoutRef.current = setTimeout(() => {
   setPreviewVisible(false);
-}, 2500);
+}, 3500);
 
 
 channelInfoTimeoutRef.current = setTimeout(() => {
   setShowChannelInfo(false);
-}, 4000);
+}, 6000);
 
     // Load saved progress for movie/series auto-resume
     if (item.type !== 'live') {
@@ -559,13 +560,13 @@ className="w-full h-full object-contain transition-all duration-150"
         }`}
       >
         {showZapBanner && item.type === "live" && (
-  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-2xl backdrop-blur-md z-50 animate-pulse">
+  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-[#0C0C0C]/95 border border-white/10 rounded-2xl px-6 py-4 flex items-center gap-4 shadow-[0_0_40px_rgba(0,0,0,0.7)] backdrop-blur-md z-50 animate-in fade-in duration-300">
 
     <img
       src={lastChannelLogo || item.logo}
       loading="eager"
       alt={item.name}
-      className="w-12 h-12 rounded-lg object-cover bg-[#141414]"
+      className="w-14 h-14 rounded-lg object-cover bg-[#141414]"
       referrerPolicy="no-referrer"
     />
 
@@ -574,7 +575,7 @@ className="w-full h-full object-contain transition-all duration-150"
         {Number(channelNumber) > 0 ? `CH ${channelNumber}` : "LIVE"}
       </div>
 
-      <div className="text-white font-bold text-lg truncate max-w-sm">
+      <div className="text-white font-bold text-xl truncate max-w-sm tracking-tight">
         {item.name}
       </div>
     </div>

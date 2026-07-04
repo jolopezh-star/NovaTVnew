@@ -95,8 +95,11 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [activeArea, setActiveArea] = useState<'sidebar' | 'categories' | 'grid'>('sidebar');
   const [sidebarFocusedIndex, setSidebarFocusedIndex] = useState(0);
   const [categoryFocusedIndex, setCategoryFocusedIndex] = useState(0);
+  const [categoryManagerIndex, setCategoryManagerIndex] = useState(0);
   const [gridFocusedIndex, setGridFocusedIndex] = useState(0);
   const [settingsIndex, setSettingsIndex] = useState(0); // Config screen active field
+  
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [playerControlFocusedIndex, setPlayerControlFocusedIndex] = useState(0);
   const [playerControlsVisible, setPlayerControlsVisible] = useState(true);
 
@@ -158,7 +161,9 @@ const [loadingEPG, setLoadingEPG] = useState(false);
 
     if (!creds) return;
 
-    setLoadingEPG(true);
+    if (!epgCache[activePlayItem.streamId!]) {
+  setLoadingEPG(true);
+}
 if (epgCache[activePlayItem.streamId!]) {
   setCurrentEPG(epgCache[activePlayItem.streamId!]);
   setLoadingEPG(false);
@@ -282,7 +287,9 @@ return () => clearTimeout(timer);
     if (activeTab === SidebarTab.Series) return c.type === 'series';
     return false;
   });
-
+const allCategories = useMemo(() => {
+  return [...categories].sort((a, b) => a.name.localeCompare(b.name));
+}, [categories]);
   // --- CONNECTING & PARSING MECHANISMS ---
   const handleXtreamLogin = async (creds: XtreamCredentials, isAuto = false) => {
     setIsLoading(true);
@@ -421,9 +428,9 @@ const getProgramProgress = (start: string, end: string): number => {
   if (next >= liveChannels.length) next = 0;
 setPlayerControlsVisible(false);
   setGridFocusedIndex(next);
-  setCurrentEPG([]);
+  
 
-requestAnimationFrame(() => {
+queueMicrotask(() => {
   
   setActivePlayItem(liveChannels[next]);
   setPlayerControlsVisible(false);
