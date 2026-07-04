@@ -282,11 +282,17 @@ return () => clearTimeout(timer);
   ]
 );
   const activeCategoriesOfTab = categories.filter(c => {
-    if (activeTab === SidebarTab.Live) return c.type === 'live';
-    if (activeTab === SidebarTab.Movies) return c.type === 'movie';
-    if (activeTab === SidebarTab.Series) return c.type === 'series';
+
+  if (settings.hiddenCategories.includes(c.id)) {
     return false;
-  });
+  }
+
+  if (activeTab === SidebarTab.Live) return c.type === 'live';
+  if (activeTab === SidebarTab.Movies) return c.type === 'movie';
+  if (activeTab === SidebarTab.Series) return c.type === 'series';
+
+  return false;
+});
 const allCategories = useMemo(() => {
   return [...categories].sort((a, b) => a.name.localeCompare(b.name));
 }, [categories]);
@@ -615,8 +621,14 @@ if (
               setGridFocusedIndex(0);
             }
           } else if (e.key === 'Backspace' || e.key === 'Escape') {
-            setActiveArea('sidebar');
-          }
+
+  if (showCategoryManager) {
+    setShowCategoryManager(false);
+    return;
+  }
+
+  setActiveArea('sidebar');
+}
         }
 
         // C. MAIN GRID VIEW AREA (Channels, Posters, Settings)
@@ -683,9 +695,9 @@ if (
           // SETTINGS PANEL TAB SPATIAL NAVIGATION
           if (activeTab === SidebarTab.SettingsTab) {
             if (e.key === 'ArrowDown') {
-              setSettingsIndex(prev => (prev + 1) % 6);
+              setSettingsIndex(prev => (prev + 1) % 7);
             } else if (e.key === 'ArrowUp') {
-              setSettingsIndex(prev => (prev - 1 + 6) % 6);
+              setSettingsIndex(prev => (prev - 1 + 7) % 7);
             } else if (e.key === 'ArrowLeft') {
               setActiveArea('sidebar');
             } else if (e.key === 'Enter') {
@@ -704,19 +716,31 @@ if (
                 // Toggle Parental locked state
                 setSettings(prev => ({ ...prev, isAdultPinLocked: !prev.isAdultPinLocked }));
               } else if (settingsIndex === 4) {
-                // Clear cache & Reset App
-                if (confirm('¿Estás seguro de que deseas restablecer la aplicación? Se borrarán tus listas, favoritos e historial.')) {
-                  clearCacheAndReset();
-                }
-              } else if (settingsIndex === 5) {
-                // Exit Settings / Return to TV
-                setActiveArea('sidebar');
-                setSidebarFocusedIndex(0);
-                setActiveTab(SidebarTab.Live);
-              }
+  // Category Manager
+  setShowCategoryManager(true);
+
+} else if (settingsIndex === 5) {
+  // Clear cache & Reset App
+  if (confirm('¿Estás seguro de que deseas restablecer la aplicación? Se borrarán tus listas, favoritos e historial.')) {
+    clearCacheAndReset();
+  }
+
+} else if (settingsIndex === 6) {
+  // Exit Settings / Return to TV
+  setShowCategoryManager(false);
+  setActiveArea('sidebar');
+  setSidebarFocusedIndex(0);
+  setActiveTab(SidebarTab.Live);
+}
             } else if (e.key === 'Backspace' || e.key === 'Escape') {
-              setActiveArea('sidebar');
-            }
+
+  if (showCategoryManager) {
+    setShowCategoryManager(false);
+  } else {
+    setActiveArea('sidebar');
+  }
+
+}
             return;
           }
 
@@ -1022,10 +1046,11 @@ else if (e.key === 'ArrowDown') {
             focusedIndex={sidebarFocusedIndex}
             activeArea={activeArea}
             onSelectTab={(tab) => {
-              setActiveTab(tab);
-              setActiveArea('grid');
-              setGridFocusedIndex(0);
-            }}
+  setShowCategoryManager(false);
+  setActiveTab(tab);
+  setActiveArea('grid');
+  setGridFocusedIndex(0);
+}}
             fontSize={settings.fontSize}
           />
 
@@ -1109,7 +1134,7 @@ else if (e.key === 'ArrowDown') {
               <div className="flex-1 flex flex-col overflow-hidden p-6">
                 
                 {/* A. If we are in Settings Tab */}
-                {activeTab === SidebarTab.SettingsTab ? (
+                {activeTab === SidebarTab.SettingsTab && !showCategoryManager ? (
                   <div className="max-w-xl mx-auto w-full bg-[#0C0C0C] border border-white/5 rounded-3xl p-8 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-y-auto">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
                       <div className="h-12 w-12 rounded-xl bg-[#0066FF]/10 text-[#0066FF] flex items-center justify-center">
@@ -1191,32 +1216,99 @@ else if (e.key === 'ArrowDown') {
                         </span>
                       </div>
 
-                      {/* Reset option */}
-                      <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-                          settingsIndex === 4 ? 'bg-[#141414] border-red-600 shadow-[0_0_15px_rgba(239,68,68,0.2)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
-                        }`}
-                      >
-                        <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-500">Limpiar Caché y Restablecer</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">Borra credenciales, listas, favoritos y reinicia.</p>
-                        </div>
-                        <Trash2 className="w-5 h-5 text-red-500/60" />
-                      </div>
+                      {/* Category Manager */}
+<div
+  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+    settingsIndex === 4
+      ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
+      : 'bg-[#0C0C0C] border-white/5 text-white/80'
+  }`}
+>
+  <div>
+    <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+      Administrador de Categorías
+    </p>
+    <p className="text-[10px] text-white/40 mt-0.5">
+      Oculta o muestra categorías.
+    </p>
+  </div>
+  <EyeOff className="w-5 h-5 text-[#0066FF]" />
+</div>
 
-                      {/* Back button */}
-                      <button 
-                        className={`w-full py-4.5 rounded-2xl font-display font-bold uppercase tracking-wider transition-all border text-center outline-none ${
-                          settingsIndex === 5 ? 'bg-white text-black scale-[1.02] font-extrabold shadow-lg border-transparent' : 'bg-[#141414]/40 text-white/40 border-white/5 hover:text-white'
-                        }`}
-                      >
-                        Guardar y Volver a Canales
-                      </button>
+{/* Reset option */}
+<div
+  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+    settingsIndex === 5
+      ? 'bg-[#141414] border-red-600 shadow-[0_0_15px_rgba(239,68,68,0.2)] scale-[1.02]'
+      : 'bg-[#0C0C0C] border-white/5 text-white/80'
+  }`}
+>
+  <div>
+    <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-500">
+      Limpiar Caché y Restablecer
+    </p>
+    <p className="text-[10px] text-white/40 mt-0.5">
+      Borra credenciales, listas, favoritos y reinicia.
+    </p>
+  </div>
+  <Trash2 className="w-5 h-5 text-red-500/60" />
+</div>
 
+{/* Back button */}
+<button
+  className={`w-full py-4.5 rounded-2xl font-display font-bold uppercase tracking-wider transition-all border text-center outline-none ${
+    settingsIndex === 6
+      ? 'bg-white text-black scale-[1.02] font-extrabold shadow-lg border-transparent'
+      : 'bg-[#141414]/40 text-white/40 border-white/5 hover:text-white'
+  }`}
+>
+  Guardar y Volver a Canales
+</button>
                     </div>
                   </div>
+                                ) : showCategoryManager ? (
+
+                  <div className="max-w-3xl mx-auto w-full bg-[#0C0C0C] border border-white/5 rounded-3xl p-8">
+                    <h2 className="text-2xl font-bold mb-6">
+                      Administrador de categorías
+                    </h2>
+
+                    <div className="space-y-2 max-h-[600px] overflow-y-auto">
+  {allCategories.map((cat) => (
+    <div
+      key={cat.id}
+      className="flex items-center justify-between p-3 rounded-xl bg-[#141414] border border-white/5"
+    >
+      <span>{cat.name}</span>
+
+      <button
+        onClick={() => {
+          const hidden = settings.hiddenCategories;
+
+          if (hidden.includes(cat.id)) {
+            setSettings(prev => ({
+              ...prev,
+              hiddenCategories: hidden.filter(id => id !== cat.id),
+            }));
+          } else {
+            setSettings(prev => ({
+              ...prev,
+              hiddenCategories: [...hidden, cat.id],
+            }));
+          }
+        }}
+      >
+        {settings.hiddenCategories.includes(cat.id)
+          ? <EyeOff className="w-5 h-5 text-red-500" />
+          : <Eye className="w-5 h-5 text-emerald-500" />}
+      </button>
+    </div>
+  ))}
+</div>
+                  </div>
+
                 ) : (
-                  
+
                   // B. If we are in SEARCH TAB, display search box
                   <>
                     {activeTab === SidebarTab.Search && (
