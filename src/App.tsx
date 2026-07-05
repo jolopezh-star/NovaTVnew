@@ -3,6 +3,7 @@ import {
   Tv, Film, Play, Heart, Clock, Search, Settings, 
   Lock, Unlock, LogOut, Check, Sliders, ChevronRight, 
   Trash2, HelpCircle, Loader2, PlayCircle, Eye, EyeOff, Sparkles, BookOpen
+  
 } from 'lucide-react';
 import { 
   AppSection, SidebarTab, Category, IPTVItem, Episode, 
@@ -1838,7 +1839,11 @@ else if (e.key === 'ArrowDown') {
                                   const isFocused = seriesModalFocusIndex === 1 && gridFocusedIndex === idx;
                                   const progressKey = `${activeSeriesDetail.id}-${episode.id}`;
                                   const progressEp = progress.find(p => p.itemId === progressKey);
-
+                                  const isWatched = (progressEp?.percentage ?? 0) >= 95;
+const isInProgress =
+  (progressEp?.percentage ?? 0) > 0 &&
+  (progressEp?.percentage ?? 0) < 95;
+ 
                                   return (
                                     <button
                                       key={episode.id}
@@ -1861,9 +1866,28 @@ else if (e.key === 'ArrowDown') {
 
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between text-xs font-semibold text-white">
-                                          <span className="font-display uppercase tracking-wide truncate">{episode.title}</span>
-                                          {episode.duration && <span className="text-white/30 text-[9px] font-mono uppercase tracking-widest shrink-0 ml-3">{episode.duration}</span>}
-                                        </div>
+  <div className="flex items-center gap-2 min-w-0">
+
+    {isWatched && (
+      <Check className="w-4 h-4 text-green-400 shrink-0" />
+    )}
+
+    {isInProgress && (
+      <Play className="w-3 h-3 fill-current text-[#0066FF] shrink-0" />
+    )}
+
+    <span className="font-display uppercase tracking-wide truncate">
+      {episode.title}
+    </span>
+
+  </div>
+
+  {episode.duration && (
+    <span className="text-white/30 text-[9px] font-mono uppercase tracking-widest shrink-0 ml-3">
+      {episode.duration}
+    </span>
+  )}
+</div>
                                         <p className="text-[10px] text-white/40 truncate mt-1 leading-normal">
                                           {episode.description || 'Disfruta de este episodio de alta definición optimizado con reproducción instantánea.'}
                                         </p>
