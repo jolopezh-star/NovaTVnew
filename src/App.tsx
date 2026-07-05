@@ -1678,7 +1678,7 @@ const isCompletedSeries =
                                   }}
                                   className={`flex flex-col text-left rounded-2xl border transition-all duration-250 select-none relative outline-none overflow-hidden h-[300px] shrink-0 ${
                                     isGridFocused
-                                      ? 'bg-[#0C0C0C] border-[#0066FF] scale-102 shadow-[0_12px_24px_rgba(0,102,255,0.3)] z-10'
+                                      ? 'bg-[#0C0C0C] border-[#0066FF] scale-[1.04] ring-2 ring-[#0066FF]/60 shadow-[0_0_40px_rgba(0,102,255,0.55)] z-20'
                                       : 'bg-[#0C0C0C]/40 border-white/5'
                                   }`}
                                 >
