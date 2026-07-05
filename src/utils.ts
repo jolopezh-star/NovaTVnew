@@ -282,6 +282,38 @@ export async function fetchXtreamSeriesStreams(creds: XtreamCredentials): Promis
     return [];
   }
 }
+export async function fetchXtreamSeriesInfo(
+  creds: XtreamCredentials,
+  seriesId: string
+): Promise<any | null> {
+
+  const cleanUrl =
+    window.location.hostname === 'localhost'
+      ? '/xtream'
+      : creds.url.replace(/\/$/, '');
+
+  const url =
+    `${cleanUrl}/player_api.php?username=${encodeURIComponent(creds.username)}` +
+    `&password=${encodeURIComponent(creds.password)}` +
+    `&action=get_series_info&series_id=${seriesId}`;
+
+  try {
+
+    const res = await fetch(url);
+
+    if (!res.ok) return null;
+
+    return await res.json();
+
+  } catch (e) {
+
+    console.error("Error fetching series info:", e);
+
+    return null;
+
+  }
+
+}
 // Helpers for localStorage persistence
 export const storage = {
   getCredentials: (): XtreamCredentials | null => {

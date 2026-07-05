@@ -18,6 +18,7 @@ import {
   fetchXtreamLiveStreams,
   fetchXtreamVodStreams,
   fetchXtreamSeriesStreams,
+  fetchXtreamSeriesInfo,
   storage
 } from './utils';
 
@@ -495,11 +496,68 @@ const img = new Image();
   };
 
   // --- SERIES DETAILS ---
-  const openSeriesDetail = (series: IPTVItem) => {
-    setActiveSeriesDetail(series);
-    setSelectedSeason(1);
-    setSeriesModalFocusIndex(0); // Default focus on the first element (Season Selector)
-  };
+  const openSeriesDetail = async (series: IPTVItem) => {
+
+  const creds = storage.getCredentials();
+
+  if (!creds) return;
+
+  const seriesId = series.id.replace("series-", "");
+
+  const data = await fetchXtreamSeriesInfo(
+    creds,
+    seriesId
+  );
+  const episodes: Episode[] = [];
+
+if (data?.episodes) {
+
+  Object.values(data.episodes).forEach((season: any) => {
+
+    season.forEach((ep: any) => {
+
+      episodes.push({
+        id: ep.id,
+        title: ep.title,
+        season: Number(ep.season),
+        episode: Number(ep.episode_num),
+        duration: ep.info?.duration,
+        description: ep.info?.plot,
+        logo: ep.info?.movie_image || ep.info?.cover_big,
+        streamUrl:
+          `${creds.url.replace(/\/$/, "")}/series/` +
+          `${creds.username}/` +
+          `${creds.password}/` +
+          `${ep.id}.${ep.container_extension}`
+      });
+
+    });
+
+  });
+
+}
+
+  console.log("SERIES INFO:", data);
+
+  setActiveSeriesDetail({
+
+  ...series,
+
+  description: data?.info?.plot,
+
+  cast: data?.info?.cast,
+
+  director: data?.info?.director,
+
+  seasonsCount: data?.seasons?.length ?? 1,
+
+  episodes
+
+});
+  setSelectedSeason(1);
+  setSeriesModalFocusIndex(0);
+
+};
 
   // --- RESET & CACHE CLEAR ---
   const clearCacheAndReset = () => {
