@@ -1683,11 +1683,19 @@ const isCompletedSeries =
                                   }`}
                                 >
                                   {/* Poster image container */}
-                                  <div className="h-44 bg-[#141414] relative overflow-hidden flex items-center justify-center shrink-0">
+<div
+  className={`h-44 relative overflow-hidden flex items-center justify-center shrink-0 transition-all duration-300 ${
+    isGridFocused
+      ? "bg-[#141414] ring-2 ring-[#0066FF] shadow-[0_0_30px_rgba(0,102,255,0.55)]"
+      : "bg-[#141414]"
+  }`}
+>
                                     <img 
                                       src={item.logo} 
                                       alt={item.name} 
-                                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                      className={`h-full w-full object-cover transition-all duration-300 ${
+  isGridFocused ? "scale-110 brightness-110" : "scale-100 brightness-100"
+}`}
                                       referrerPolicy="no-referrer"
                                     />
                                     
@@ -1712,7 +1720,7 @@ const isCompletedSeries =
 
                                     {/* Action highlight icon */}
                                     {isGridFocused && (
-                                      <div className="absolute inset-0 bg-[#0066FF]/20 flex items-center justify-center">
+                                      <div className="absolute inset-0 bg-gradient-to-t from-[#0066FF]/55 via-[#0066FF]/15 to-transparent flex items-center justify-center">
                                         <PlayCircle className="w-12 h-12 text-white fill-[#0066FF]/50 shadow-lg" />
                                       </div>
                                     )}
