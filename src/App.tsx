@@ -1649,8 +1649,25 @@ else if (e.key === 'ArrowDown') {
                               const isFavorite = favorites.includes(item.id);
                               
                               // Check saved progress
+
                               const progressItem = progress.find(p => p.itemId.split('-')[0] === item.id);
-                              
+                              const hasProgress =
+  item.type === 'series' &&
+  progress.some(
+    p =>
+      p.itemId.startsWith(item.id) &&
+      p.percentage > 0 &&
+      p.percentage < 95
+  );
+
+const isCompletedSeries =
+  item.type === 'series' &&
+  progress
+    .filter(p => p.itemId.startsWith(item.id))
+    .length > 0 &&
+  progress
+    .filter(p => p.itemId.startsWith(item.id))
+    .every(p => p.percentage >= 95);
 
                               return (
                                 <button
@@ -1709,6 +1726,20 @@ else if (e.key === 'ArrowDown') {
                                         />
                                       </div>
                                     )}
+                                    {/* Series status badge */}
+{item.type === 'series' && hasProgress && (
+  <div className="absolute bottom-3 left-3 bg-[#0066FF]/95 backdrop-blur-sm text-white text-[9px] font-bold uppercase px-2 py-1 rounded-lg shadow-lg flex items-center gap-1">
+    <Play className="w-3 h-3 fill-current" />
+    Continuar
+  </div>
+)}
+
+{item.type === 'series' && isCompletedSeries && (
+  <div className="absolute bottom-3 left-3 bg-green-600/95 backdrop-blur-sm text-white text-[9px] font-bold uppercase px-2 py-1 rounded-lg shadow-lg flex items-center gap-1">
+    <Check className="w-3 h-3" />
+    Completada
+  </div>
+)}
                                   </div>
 
                                   {/* Text Info Container */}
