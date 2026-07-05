@@ -172,8 +172,11 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   clearTimeout(zapTimeoutRef.current);
 }
 setShowZapBanner(false);
-setLastChannelLogo(item.logo);
-setShowZapBanner(true);
+
+requestAnimationFrame(() => {
+  setLastChannelLogo(item.logo);
+  setShowZapBanner(true);
+});
 
 zapTimeoutRef.current = setTimeout(() => {
   setShowZapBanner(false);
@@ -185,6 +188,9 @@ setPreviewLogo(item.logo);
 setPreviewTitle(item.name);
 setPreviewNumber(item.streamId ?? "");
 setPreviewVisible(true);
+if (item.type !== "live") {
+  setPreviewVisible(false);
+}
 setPlayerControlsVisible(true);
 
 
@@ -217,12 +223,14 @@ channelInfoTimeoutRef.current = setTimeout(() => {
       const savedProgress = storage.getProgress();
       const progress = savedProgress.find(p => p.itemId === progressKey);
       if (progress && progress.position > 10 && progress.position < progress.duration - 15) {
-        setSavedProgressTime(progress.position);
-        setShowResumePrompt(true);
-        // Automatically hide prompt after 6 seconds
-        const t = setTimeout(() => setShowResumePrompt(false), 6000);
-        return () => clearTimeout(t);
-      }
+  setSavedProgressTime(progress.position);
+  setShowResumePrompt(true);
+
+  // Automatically hide prompt after 6 seconds
+  const t = setTimeout(() => setShowResumePrompt(false), 6000);
+
+  setTimeout(() => clearTimeout(t), 6000);
+}
     }
 
     // Playback Engine: Native vs Hls.js
@@ -408,7 +416,10 @@ showVolumeTimeoutRef.current = setTimeout(() => {
 
   const acceptResume = () => {
     if (videoRef.current) {
-      videoRef.current.currentTime = savedProgressTime;
+      videoRef.current.currentTime = Math.min(
+  savedProgressTime,
+  (videoRef.current.duration || savedProgressTime) - 2
+);
       videoRef.current.play().catch(e => console.error(e));
       setIsPlaying(true);
     }
@@ -471,10 +482,17 @@ showVolumeTimeoutRef.current = setTimeout(() => {
   setBuffering(true);
   setBufferPercent(0);
 }}
-
 onPlaying={() => {
   setBuffering(false);
   setBufferPercent(100);
+}}
+onCanPlay={() => {
+  setBuffering(false);
+}}
+onError={() => {
+  setBuffering(false);
+  setBufferPercent(0);
+  console.error("Error al cargar el video");
 }}
 
         playsInline

@@ -261,9 +261,16 @@ return () => clearTimeout(timer);
     } else if (activeTab === SidebarTab.Favorites) {
       result = items.filter(i => favorites.includes(i.id));
     } else if (activeTab === SidebarTab.Recents) {
-      const recentIds = progress.map(p => p.itemId.split('-')[0]); // Strip episode suffixes
-      result = items.filter(i => recentIds.includes(i.id));
-    } else if (activeTab === SidebarTab.Search) {
+  const recentIds = [...new Set(
+    progress
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .map(p => p.itemId.split('-')[0])
+  )];
+
+  result = recentIds
+    .map(id => items.find(i => i.id === id))
+    .filter((i): i is IPTVItem => i !== undefined);
+} else if (activeTab === SidebarTab.Search) {
       if (!searchQuery) return [];
       result = items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
@@ -498,6 +505,7 @@ const img = new Image();
 
   // --- SERIES DETAILS ---
   const openSeriesDetail = async (series: IPTVItem) => {
+    setSelectedSeason(1);
 
   const creds = storage.getCredentials();
 
@@ -1642,6 +1650,7 @@ else if (e.key === 'ArrowDown') {
                               
                               // Check saved progress
                               const progressItem = progress.find(p => p.itemId.split('-')[0] === item.id);
+                              
 
                               return (
                                 <button
@@ -1882,25 +1891,22 @@ const isInProgress =
 
   </div>
 
-  {episode.duration && (
-    <span className="text-white/30 text-[9px] font-mono uppercase tracking-widest shrink-0 ml-3">
-      {episode.duration}
-    </span>
-  )}
+  <span className="text-white/30 text-[9px] font-mono uppercase tracking-widest shrink-0 ml-3">
+  {episode.duration}
+  {progressEp && ` • ${progressEp.percentage}%`}
+</span>
 </div>
                                         <p className="text-[10px] text-white/40 truncate mt-1 leading-normal">
                                           {episode.description || 'Disfruta de este episodio de alta definición optimizado con reproducción instantánea.'}
                                         </p>
                                         
                                         {/* Episode dynamic progress bar */}
-                                        {progressEp && (
-                                          <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden mt-2">
-                                            <div 
-                                              className="bg-[#0066FF] h-full shadow-[0_0_8px_rgba(0,102,255,0.6)]" 
-                                              style={{ width: `${progressEp.percentage}%` }}
-                                            />
-                                          </div>
-                                        )}
+                                        <div
+  className={`h-full transition-all duration-500 shadow-[0_0_8px_rgba(0,102,255,0.6)] ${
+    isWatched ? "bg-green-500" : "bg-[#0066FF]"
+  }`}
+  style={{ width: `${progressEp?.percentage ?? 0}%` }}
+/>
                                       </div>
                                     </button>
                                   );
