@@ -295,6 +295,20 @@ return () => clearTimeout(timer);
     settings.hiddenCategories,
   ]
 );
+const continueWatching = useMemo(() => {
+  const ids = [
+    ...new Set(
+      progress
+        .filter(p => p.percentage > 0 && p.percentage < 95)
+        .sort((a, b) => b.updatedAt - a.updatedAt)
+        .map(p => p.itemId.split("-")[0])
+    ),
+  ];
+
+  return ids
+    .map(id => items.find(item => item.id === id))
+    .filter((item): item is IPTVItem => item !== undefined);
+}, [items, progress]);
   const activeCategoriesOfTab = categories.filter(c => {
 
   if (settings.hiddenCategories.includes(c.id)) {
