@@ -89,6 +89,8 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [nextChannelName, setNextChannelName] = useState("");
   const [lastChannelLogo, setLastChannelLogo] = useState("");
   const [showResumePrompt, setShowResumePrompt] = useState(false);
+  const [showNextEpisode, setShowNextEpisode] = useState(false);
+const [nextEpisodeCountdown, setNextEpisodeCountdown] = useState(10);
   const [savedProgressTime, setSavedProgressTime] = useState(0);
   const [isPiPActive, setIsPiPActive] = useState(false);
   const [currentResolution, setCurrentResolution] = useState('1080p HD');
@@ -127,11 +129,13 @@ const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   let streamUrl = item.streamUrl;
   let progressKey = item.id;
   
+  
   if (item.type === 'series' && episodeId) {
     const episode = item.episodes?.find(e => e.id === episodeId);
     if (episode) {
       streamUrl = episode.streamUrl;
       progressKey = `${item.id}-${episodeId}`;
+      
     }
   }
 
@@ -310,7 +314,7 @@ if (channelInfoTimeoutRef.current) {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [currentTime, duration, item, progressKey, episodeId]);
+  }, [item, progressKey, episodeId]);
 
   // Track state updates
   const handleTimeUpdate = () => {
@@ -329,6 +333,15 @@ if (video.buffered.length > 0) {
 setVolume(Math.round(video.volume * 100));
     if (videoRef.current) {
       setCurrentTime(videoRef.current.currentTime);
+      if (
+  item.type === "series" &&
+  duration > 0 &&
+  videoRef.current.currentTime >= duration - 5 &&
+  !showNextEpisode
+) {
+  setShowNextEpisode(true);
+  setNextEpisodeCountdown(10);
+}
     }
   };
 
