@@ -296,19 +296,26 @@ return () => clearTimeout(timer);
   ]
 );
 const continueWatching = useMemo(() => {
+  const savedProgress = storage.getProgress();
+
   const ids = [
     ...new Set(
-      progress
+      savedProgress
         .filter(p => p.percentage > 0 && p.percentage < 95)
         .sort((a, b) => b.updatedAt - a.updatedAt)
-        .map(p => p.itemId.split("-")[0])
+        .map(p => p.itemId.split("-").slice(0, 2).join("-"))
     ),
   ];
 
-  return ids
-    .map(id => items.find(item => item.id === id))
-    .filter((item): item is IPTVItem => item !== undefined);
-}, [items, progress]);
+  console.log("Buscando:", ids[0]);
+console.log("Encontrado:", items.find(item => item.id === ids[0]));
+console.log("Primer item:", items[0]?.id);
+console.log("Items cargados:", items.length);
+
+return ids
+  .map(id => items.find(item => item.id === id))
+  .filter((item): item is IPTVItem => item !== undefined);
+}, [items]);
   const activeCategoriesOfTab = categories.filter(c => {
 
   if (settings.hiddenCategories.includes(c.id)) {
@@ -371,8 +378,8 @@ fetchXtreamSeriesStreams(creds)
         const firstCat = mergedCats.find(c => c.type === 'live');
         if (firstCat) setSelectedCategory(firstCat.id);
 
-        setSection(AppSection.Main);
-        setActiveArea('sidebar');
+setSection(AppSection.Dashboard);
+setActiveArea('sidebar');
       } else {
   if (!isAuto) {
     setErrorMessage(result.message);
@@ -423,10 +430,10 @@ fetchXtreamSeriesStreams(creds)
 
       // Reset default category
       const firstLive = parsed.categories.find(c => c.type === 'live') || parsed.categories[0];
-      if (firstLive) setSelectedCategory(firstLive.id);
+if (firstLive) setSelectedCategory(firstLive.id);
 
-      setSection(AppSection.Main);
-      setActiveArea('sidebar');
+setSection(AppSection.Dashboard);
+setActiveArea('sidebar');
     } catch (e) {
       setErrorMessage('Ocurrió un error al procesar la lista M3U.');
     } finally {
@@ -439,8 +446,8 @@ fetchXtreamSeriesStreams(creds)
     setCategories(DEMO_CATEGORIES);
     setItems(DEMO_ITEMS);
     setSelectedCategory('live-news');
-    setSection(AppSection.Main);
-    setActiveArea('sidebar');
+setSection(AppSection.Dashboard);
+setActiveArea('sidebar');
   };
 const getProgramProgress = (start: string, end: string): number => {
 
@@ -1103,6 +1110,12 @@ else if (e.key === 'ArrowDown') {
 
         </div>
       )}
+            {section === AppSection.Dashboard && (
+  <HomeScreen
+    continueWatching={continueWatching}
+    onOpenCatalog={() => setSection(AppSection.Main)}
+  />
+)}
 
       {/* 2. --- LOGIN XTREAM SCREEN --- */}
       {section === AppSection.LoginXtream && (

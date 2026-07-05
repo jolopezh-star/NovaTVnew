@@ -5,6 +5,7 @@ export enum AppSection {
   Main = 'MAIN',
   Player = 'PLAYER',
   Settings = 'SETTINGS',
+  Dashboard = 'DASHBOARD',
   PinLock = 'PIN_LOCK'
 }
 
