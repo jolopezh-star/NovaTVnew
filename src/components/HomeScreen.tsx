@@ -1,4 +1,4 @@
-import { IPTVItem } from "../types";
+import { IPTVItem, PlaybackProgress } from "../types";
 import { storage } from "../utils";
 interface HomeScreenProps {
   continueWatching: IPTVItem[];
@@ -29,14 +29,15 @@ export default function HomeScreen({
 ) : (
   <div className="flex gap-6 overflow-x-auto pb-2">
     {continueWatching.map(item => (
+      
       <div
         key={item.id}
-        className="w-44 shrink-0"
+        className="w-52 shrink-0"
       >
         <img
           src={item.logo}
           alt={item.name}
-          className="w-44 h-64 object-cover rounded-xl"
+          className="w-52 h-72 object-cover rounded-2xl"
           referrerPolicy="no-referrer"
         />
         <p className="mt-3 text-sm font-medium line-clamp-2">

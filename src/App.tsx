@@ -1112,9 +1112,12 @@ else if (e.key === 'ArrowDown') {
       )}
             {section === AppSection.Dashboard && (
   <HomeScreen
-    continueWatching={continueWatching}
-    onOpenCatalog={() => setSection(AppSection.Main)}
-  />
+  continueWatching={continueWatching}
+  onOpenCatalog={() => setSection(AppSection.Main)}
+  onPlayItem={(item) => {
+    console.log("Play desde Home:", item.name);
+  }}
+/>
 )}
 
       {/* 2. --- LOGIN XTREAM SCREEN --- */}
