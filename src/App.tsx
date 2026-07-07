@@ -29,6 +29,7 @@ import LoginM3u from './components/LoginM3u';
 import Player from './components/Player';
 import PINDialog from './components/PINDialog';
 import HomeScreen from './components/HomeScreen';
+import ContentRow from "./components/ContentRow";
 
 import {
   fetchShortEPG,
@@ -37,6 +38,7 @@ import {
   getCurrentProgram,
 } from './services/epg';
 import HomeHeader from "./components/HomeHeader";
+import Dashboard from "./components/Dashboard";
 
 export default function App() {
 
@@ -89,7 +91,9 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [activeSeriesDetail, setActiveSeriesDetail] = useState<IPTVItem | null>(null);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
   const [seriesModalFocusIndex, setSeriesModalFocusIndex] = useState<number>(0); // 0: Season selector, 1: Episodes list, 2: Favorite toggle, 3: Close btn
-
+  const [featuredItem, setFeaturedItem] = useState<IPTVItem | null>(null);
+  const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
+  const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
   // --- parental PIN LOCK ---
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
   const [pinInput, setPinInput] = useState('');
@@ -578,21 +582,7 @@ if (data?.episodes) {
 
   console.log("SERIES INFO:", data);
 
-  setActiveSeriesDetail({
-
-  ...series,
-
-  description: data?.info?.plot,
-
-  cast: data?.info?.cast,
-
-  director: data?.info?.director,
-
-  seasonsCount: data?.seasons?.length ?? 1,
-
-  episodes
-
-});
+  
   const fullSeries = {
   ...series,
   description: data?.info?.plot,
@@ -604,8 +594,15 @@ if (data?.episodes) {
 
 setActiveSeriesDetail(fullSeries);
 
+setSection(AppSection.Main);
+
+setActiveTab(SidebarTab.Series);
+
+setActiveArea("grid");
+
 setSelectedSeason(1);
 setSeriesModalFocusIndex(0);
+setGridFocusedIndex(0);
 
 return fullSeries;
 
@@ -620,7 +617,27 @@ const resumeSeriesFromDashboard = async (
     setGridFocusedIndex(0);
   }, 100);
 };
+useEffect(() => {
+  const featured = items.filter(
+    i => i.type === "movie" || i.type === "series"
+  );
 
+  if (featured.length === 0) return;
+
+  const pickRandom = () => {
+    const random =
+      featured[Math.floor(Math.random() * featured.length)];
+
+    setFeaturedItem(random);
+  };
+
+  pickRandom();
+
+  const timer = setInterval(pickRandom, 20000);
+
+  return () => clearInterval(timer);
+
+}, [items]);
   // --- RESET & CACHE CLEAR ---
   const clearCacheAndReset = () => {
     storage.clearCredentials();
@@ -1145,9 +1162,101 @@ else if (e.key === 'ArrowDown') {
       )}
             {section === AppSection.Dashboard && (
   <div className="min-h-screen bg-[#050505] text-white p-10">
-    <h1 className="text-4xl font-bold mb-8">
-      Nova<span className="text-[#0066FF]">TV</span>
+    <div
+  className={`mb-10 rounded-3xl overflow-hidden relative h-[68vh] min-h-[520px] max-h-[760px] transition-all duration-300 ${
+    dashboardRowIndex === 0
+      ? "ring-4 ring-[#0066FF] shadow-[0_0_40px_rgba(0,102,255,0.55)]"
+      : ""
+  }`}
+>
+
+  <img
+  src={featuredItem?.logo}
+  alt={featuredItem?.name}
+  className="absolute inset-0 w-full h-full object-cover"
+  referrerPolicy="no-referrer"
+/>
+
+  <>
+  <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-black/75 to-black/20" />
+
+  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-black/40" />
+
+  <div className="absolute inset-0 bg-black/20" />
+</>
+
+  <div className="relative z-10 flex flex-col justify-end h-full p-10">
+
+    <span className="text-[#0066FF] font-bold uppercase tracking-[0.3em] text-xs">
+      DESTACADO
+    </span>
+
+    <h1 className="text-5xl font-black mt-3">
+      {
+  featuredItem?.name ??
+  "NovaTV"
+}
     </h1>
+
+    <div className="flex items-center gap-5 mt-5 text-sm text-white/80">
+
+  {featuredItem?.year && (
+    <span className="px-3 py-1 rounded-full bg-white/10">
+      📅 {featuredItem.year}
+    </span>
+  )}
+
+  {featuredItem?.genre && (
+    <span className="px-3 py-1 rounded-full bg-white/10">
+      🎭 {featuredItem.genre}
+    </span>
+  )}
+
+  {featuredItem?.rating && (
+    <span className="px-3 py-1 rounded-full bg-[#FFD54A] text-black font-bold">
+      ⭐ {featuredItem.rating}
+    </span>
+  )}
+
+  {featuredItem?.duration && (
+    <span className="px-3 py-1 rounded-full bg-white/10">
+      ⏱ {featuredItem.duration}
+    </span>
+  )}
+
+</div>
+
+<p className="text-white/70 mt-5 max-w-3xl text-lg leading-8 line-clamp-3">
+  {
+    featuredItem?.description ??
+    "Disfruta tu contenido favorito."
+  }
+</p>
+    <div className="flex gap-4 mt-8">
+
+  <button
+    onClick={() => {
+      if (!featuredItem) return;
+
+      playSelectedItem(featuredItem);
+    }}
+    className="px-8 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0050cc] transition font-bold text-white flex items-center gap-3"
+  >
+    ▶ Reproducir
+  </button>
+
+  <button
+    onClick={() => setSection(AppSection.Main)}
+    className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold text-white"
+  >
+    Explorar catálogo
+  </button>
+
+</div>
+
+  </div>
+
+</div>
 
     <h2 className="text-2xl font-semibold mb-6">
       Continuar viendo
@@ -1184,28 +1293,49 @@ else if (e.key === 'ArrowDown') {
       ))}
     </div>
 
-    <h2 className="text-2xl font-semibold mt-12 mb-6">
-      ⭐ Películas mejor valoradas
-    </h2>
+    <ContentRow
+  title="⭐ Películas mejor valoradas"
+  items={items
+    .filter(i => i.type === "movie")
+    .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
+    .slice(0, 10)}
+  onSelect={triggerPlay}
+/>
 
-    <div className="flex gap-6 overflow-x-auto">
-      {items
-        .filter(i => i.type === "movie")
-        .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
-        .slice(0, 10)
-        .map(item => (
-          <div key={item.id} className="w-52 shrink-0">
-            <img
-              src={item.logo}
-              alt={item.name}
-              className="w-52 h-72 object-cover rounded-2xl"
-            />
-            <p className="mt-3 text-sm">
-              {item.name}
-            </p>
-          </div>
-        ))}
+<ContentRow
+  title="🆕 Añadidas recientemente"
+  items={items
+    .filter(i => i.type === "movie")
+    .sort((a, b) => Number(b.id) - Number(a.id))
+    .slice(0, 10)}
+  onSelect={triggerPlay}
+/>
+
+<ContentRow
+  title="📺 Series"
+  items={items
+    .filter(i => i.type === "series")
+    .slice(0, 10)}
+  onSelect={playSelectedItem}
+/>
+
+<ContentRow
+  title="📡 TV en vivo"
+  items={items
+    .filter(i => i.type === "live")
+    .slice(0, 10)}
+  onSelect={triggerPlay}
+  posterHeight="h-52"
+  renderPoster={(item) => (
+    <div className="w-52 h-52 rounded-2xl bg-[#111] flex items-center justify-center">
+      <img
+        src={item.logo}
+        alt={item.name}
+        className="max-w-full max-h-full object-contain p-6"
+      />
     </div>
+  )}
+/>
 
     <div className="mt-10">
       <button
