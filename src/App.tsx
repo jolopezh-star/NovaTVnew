@@ -28,6 +28,7 @@ import LoginXtream from './components/LoginXtream';
 import LoginM3u from './components/LoginM3u';
 import Player from './components/Player';
 import PINDialog from './components/PINDialog';
+import ChangePINDialog from "./components/ChangePINDialog";
 import HomeScreen from './components/HomeScreen';
 import ContentRow from "./components/ContentRow";
 
@@ -73,6 +74,11 @@ export default function App() {
 const [parentalPinInput, setParentalPinInput] = useState("");
 const [parentalPinError, setParentalPinError] = useState(false);
 const [ignoreNextEnter, setIgnoreNextEnter] = useState(false);
+const [showChangePin, setShowChangePin] = useState(false);
+const [currentPinInput, setCurrentPinInput] = useState("");
+const [newPinInput, setNewPinInput] = useState("");
+const [confirmPinInput, setConfirmPinInput] = useState("");
+const [changePinError, setChangePinError] = useState("");
   // --- CREDENTIALS FORM ---
   const [xtreamCreds, setXtreamCreds] = useState<XtreamCredentials>({
     url: '',
@@ -947,8 +953,11 @@ if (
 
 } else if (settingsIndex === 3) {
 
-  // Cambiar PIN
-  // (La funcionalidad se implementará en el siguiente paso)
+  setCurrentPinInput("");
+  setNewPinInput("");
+  setConfirmPinInput("");
+  setChangePinError("");
+  setShowChangePin(true);
 
 } else if (settingsIndex === 4) {
   // Category Manager
@@ -2256,6 +2265,11 @@ const isInProgress =
           errorMessage={pinError}
         />
       )}
+      {showChangePin && (
+  <ChangePINDialog
+    onClose={() => setShowChangePin(false)}
+  />
+)}
 
       {/* 6. --- FULLSCREEN IPTV STREAM VIDEO PLAYER --- */}
       {section === AppSection.Player && activePlayItem && (
