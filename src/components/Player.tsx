@@ -517,7 +517,7 @@ className="w-full h-full object-contain transition-all duration-150"
       />
 {buffering && (
   
-  <div className="absolute inset-0 flex items-center justify-center bg-black/30 z-50">
+  <div className="absolute inset-0 flex items-center justify-center bg-transparent z-50">
     <p className="absolute mt-24 text-white/80 text-sm font-semibold">
   Cargando... {bufferPercent}%
 </p>

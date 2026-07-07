@@ -359,6 +359,25 @@ export const storage = {
     return stored ? JSON.parse(stored) : null;
   },
   saveSettings: (settings: any) => {
-    localStorage.setItem('webos_settings', JSON.stringify(settings));
-  }
+  localStorage.setItem('webos_settings', JSON.stringify(settings));
+},
+
+getRecentChannels: (): IPTVItem[] => {
+  const stored = localStorage.getItem('webos_recent_channels');
+  return stored ? JSON.parse(stored) : [];
+},
+
+saveRecentChannel: (channel: IPTVItem) => {
+  const stored = storage.getRecentChannels();
+
+  const filtered = stored.filter(c => c.id !== channel.id);
+
+  filtered.unshift(channel);
+
+  localStorage.setItem(
+    'webos_recent_channels',
+    JSON.stringify(filtered.slice(0, 20))
+  );
+}
+
 };

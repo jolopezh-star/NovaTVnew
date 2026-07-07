@@ -101,6 +101,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState<number>(1);
   const [seriesModalFocusIndex, setSeriesModalFocusIndex] = useState<number>(0); // 0: Season selector, 1: Episodes list, 2: Favorite toggle, 3: Close btn
   const [featuredItem, setFeaturedItem] = useState<IPTVItem | null>(null);
+  const lastFeaturedIndex = useRef(-1);
   const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
   const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
   // --- parental PIN LOCK ---
@@ -547,6 +548,9 @@ const playSelectedItem = (item: IPTVItem, epId?: string) => {
     }
 const img = new Image();
   img.src = item.logo;
+  if (item.type === "live") {
+  storage.saveRecentChannel(item);
+}
     setActivePlayItem(item);
     if (epId) setActiveEpisodeId(epId);
     setPlayerControlFocusedIndex(0);
@@ -691,11 +695,23 @@ const featured = items.filter(i => {
   if (featured.length === 0) return;
 
   const pickRandom = () => {
-    const random =
-      featured[Math.floor(Math.random() * featured.length)];
 
-    setFeaturedItem(random);
-  };
+  if (featured.length === 1) {
+    setFeaturedItem(featured[0]);
+    return;
+  }
+
+  let randomIndex;
+
+  do {
+    randomIndex = Math.floor(Math.random() * featured.length);
+  } while (randomIndex === lastFeaturedIndex.current);
+
+  lastFeaturedIndex.current = randomIndex;
+
+  setFeaturedItem(featured[randomIndex]);
+
+};
 
   pickRandom();
 
@@ -1325,11 +1341,15 @@ else if (e.key === 'ArrowDown') {
     <div className="flex gap-4 mt-8">
 
   <button
-    onClick={() => {
-      if (!featuredItem) return;
+  onClick={() => {
+    if (!featuredItem) return;
 
+    if (featuredItem.type === "series") {
+      openSeriesDetail(featuredItem);
+    } else {
       playSelectedItem(featuredItem);
-    }}
+    }
+  }}
     className="px-8 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0050cc] transition font-bold text-white flex items-center gap-3"
   >
     ▶ Reproducir

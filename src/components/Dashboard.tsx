@@ -1,4 +1,5 @@
 import ContentRow from "./ContentRow";
+import { storage } from "../utils";
 
 interface DashboardProps {
   items: any[];
@@ -17,10 +18,29 @@ export default function Dashboard({
   openSeriesDetail,
   onExploreCatalog,
 }: DashboardProps) {
+  const recentChannels = storage.getRecentChannels();
   return (
     <div className="min-h-screen bg-[#050505] text-white p-10">
-        
-        <h2
+       {recentChannels.length > 0 && (
+  <ContentRow
+    title="🕘 Canales recientes"
+    items={recentChannels}
+    onSelect={triggerPlay}
+    posterHeight="h-52"
+    renderPoster={(item) => (
+      <div className="w-52 h-52 rounded-2xl bg-[#111] flex items-center justify-center">
+        <img
+          src={item.logo}
+          alt={item.name}
+          className="max-w-full max-h-full object-contain p-6"
+        />
+      </div>
+    )}
+  />
+)} 
+        {continueWatching.length > 0 && (
+<>
+<h2
   className="text-2xl font-semibold mb-6"
 >
   Continuar viendo
@@ -54,7 +74,8 @@ export default function Dashboard({
     </div>
   ))}
 </div>
-
+</>
+)}
   <ContentRow
   title="⭐ Películas mejor valoradas"
   items={items
