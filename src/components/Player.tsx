@@ -304,7 +304,7 @@ if (channelInfoTimeoutRef.current) {
           itemId: progressKey,
           position: Math.floor(pos),
           duration: Math.floor(dur),
-          percentage: Math.floor((pos / dur) * 100),
+          percentage: Math.max(1, Math.round((pos / dur) * 100)),
           updatedAt: Date.now(),
           episodeId: episodeId
         };

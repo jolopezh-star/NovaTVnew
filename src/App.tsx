@@ -296,25 +296,26 @@ return () => clearTimeout(timer);
   ]
 );
 const continueWatching = useMemo(() => {
-  const savedProgress = storage.getProgress();
+  const progress = storage.getProgress();
 
-  const ids = [
-    ...new Set(
-      savedProgress
-        .filter(p => p.percentage > 0 && p.percentage < 95)
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-        .map(p => p.itemId.split("-").slice(0, 2).join("-"))
-    ),
-  ];
+  return progress
+    .filter(p => p.percentage > 0 && p.percentage < 95)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map(p => {
+      const baseId = p.itemId.split("-").slice(0, 2).join("-");
+      const item = items.find(i => i.id === baseId);
 
-  console.log("Buscando:", ids[0]);
-console.log("Encontrado:", items.find(item => item.id === ids[0]));
-console.log("Primer item:", items[0]?.id);
-console.log("Items cargados:", items.length);
+      if (!item) return null;
 
-return ids
-  .map(id => items.find(item => item.id === id))
-  .filter((item): item is IPTVItem => item !== undefined);
+      return {
+        item,
+        progress: p,
+      };
+    })
+    .filter(
+  (entry): entry is { item: IPTVItem; progress: PlaybackProgress } =>
+    entry !== null
+);
 }, [items]);
   const activeCategoriesOfTab = categories.filter(c => {
 
@@ -491,6 +492,14 @@ queueMicrotask(() => {
   
 
 };
+const playSelectedItem = (item: IPTVItem, epId?: string) => {
+  if (item.type === "series" && !epId) {
+    openSeriesDetail(item);
+    return;
+  }
+
+  triggerPlay(item, epId);
+};
   const triggerPlay = (item: IPTVItem, epId?: string) => {
     // Adult content parental PIN verification
     if (item.category === 'live-adult' && settings.isAdultPinLocked && settings.adultPin) {
@@ -584,9 +593,32 @@ if (data?.episodes) {
   episodes
 
 });
-  setSelectedSeason(1);
-  setSeriesModalFocusIndex(0);
+  const fullSeries = {
+  ...series,
+  description: data?.info?.plot,
+  cast: data?.info?.cast,
+  director: data?.info?.director,
+  seasonsCount: data?.seasons?.length ?? 1,
+  episodes
+};
 
+setActiveSeriesDetail(fullSeries);
+
+setSelectedSeason(1);
+setSeriesModalFocusIndex(0);
+
+return fullSeries;
+
+};
+const resumeSeriesFromDashboard = async (
+  series: IPTVItem,
+  episodeId: string
+) => {
+  await openSeriesDetail(series);
+
+  setTimeout(() => {
+    setGridFocusedIndex(0);
+  }, 100);
 };
 
   // --- RESET & CACHE CLEAR ---
@@ -884,6 +916,7 @@ if (
           } else if (e.key === 'Enter') {
             const focusedItem = filteredItems[gridFocusedIndex];
             if (focusedItem) {
+              
               if (focusedItem.type === 'series') {
                 openSeriesDetail(focusedItem);
               } else {
@@ -1111,15 +1144,79 @@ else if (e.key === 'ArrowDown') {
         </div>
       )}
             {section === AppSection.Dashboard && (
-  <HomeScreen
-  continueWatching={continueWatching}
-  onOpenCatalog={() => setSection(AppSection.Main)}
-  onPlayItem={(item) => {
-    console.log("Play desde Home:", item.name);
-  }}
-/>
-)}
+  <div className="min-h-screen bg-[#050505] text-white p-10">
+    <h1 className="text-4xl font-bold mb-8">
+      Nova<span className="text-[#0066FF]">TV</span>
+    </h1>
 
+    <h2 className="text-2xl font-semibold mb-6">
+      Continuar viendo
+    </h2>
+
+    <div className="flex gap-6 overflow-x-auto">
+      {continueWatching.map(({ item, progress }) => (
+        <div
+  key={item.id}
+  className="w-52 shrink-0 cursor-pointer"
+  onClick={async () => {
+  if (item.type === "series") {
+
+    const fullSeries = await openSeriesDetail(item);
+
+    if (fullSeries && progress.episodeId) {
+      triggerPlay(fullSeries, progress.episodeId);
+    }
+
+  } else {
+    triggerPlay(item);
+  }
+}}
+>
+          <img
+            src={item.logo}
+            alt={item.name}
+            className="w-52 h-72 object-cover rounded-2xl"
+          />
+          <p className="mt-3 text-sm">
+            {item.name}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    <h2 className="text-2xl font-semibold mt-12 mb-6">
+      ⭐ Películas mejor valoradas
+    </h2>
+
+    <div className="flex gap-6 overflow-x-auto">
+      {items
+        .filter(i => i.type === "movie")
+        .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
+        .slice(0, 10)
+        .map(item => (
+          <div key={item.id} className="w-52 shrink-0">
+            <img
+              src={item.logo}
+              alt={item.name}
+              className="w-52 h-72 object-cover rounded-2xl"
+            />
+            <p className="mt-3 text-sm">
+              {item.name}
+            </p>
+          </div>
+        ))}
+    </div>
+
+    <div className="mt-10">
+      <button
+        onClick={() => setSection(AppSection.Main)}
+        className="px-8 py-3 rounded-xl bg-[#0066FF] text-white font-bold"
+      >
+        Explorar catálogo
+      </button>
+    </div>
+  </div>
+)}
       {/* 2. --- LOGIN XTREAM SCREEN --- */}
       {section === AppSection.LoginXtream && (
         <LoginXtream
@@ -1152,6 +1249,7 @@ else if (e.key === 'ArrowDown') {
 
       {/* 4. --- MAIN IPTV CATEGORIES & STREAMS CATALOG SCREEN --- */}
       {section === AppSection.Main && (
+        
         <div className="min-h-screen flex bg-[#050505]">
           
           {/* Main vertical expandible sidebar */}
@@ -1188,7 +1286,14 @@ else if (e.key === 'ArrowDown') {
                     </span>
                   )}
                 </h2>
+
               </div>
+              <button
+  onClick={() => setSection(AppSection.Dashboard)}
+  className="px-5 py-2 rounded-lg bg-red-600 text-white font-bold z-50"
+>
+  INICIO
+</button>
 
               {/* Red/Green interactive color keys shortcuts */}
               <div className="flex items-center gap-6 text-[10px] text-white/30 font-mono uppercase tracking-widest">
