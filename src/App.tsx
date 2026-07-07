@@ -69,7 +69,10 @@ export default function App() {
     adultPin: '1234',
     isAdultPinLocked: true
   });
-
+  const [showParentalPin, setShowParentalPin] = useState(false);
+const [parentalPinInput, setParentalPinInput] = useState("");
+const [parentalPinError, setParentalPinError] = useState(false);
+const [ignoreNextEnter, setIgnoreNextEnter] = useState(false);
   // --- CREDENTIALS FORM ---
   const [xtreamCreds, setXtreamCreds] = useState<XtreamCredentials>({
     url: '',
@@ -322,10 +325,32 @@ const continueWatching = useMemo(() => {
 );
 }, [items]);
   const activeCategoriesOfTab = categories.filter(c => {
+   const adultWords = [
+  "adult",
+  "adults",
+  "adultos",
+  "xxx",
+  "porn",
+  "porno",
+  "sex",
+  "erotic",
+  "erotica",
+  "erótico",
+  "erótica",
+  "hentai",
+  "18+",
+  "+18"
+]; 
 
   if (settings.hiddenCategories.includes(c.id)) {
     return false;
   }
+  if (
+  settings.isAdultPinLocked &&
+  adultWords.some(word => c.name.toLowerCase().includes(word))
+) {
+  return false;
+}
 
   if (activeTab === SidebarTab.Live) return c.type === 'live';
   if (activeTab === SidebarTab.Movies) return c.type === 'movie';
@@ -525,11 +550,27 @@ const img = new Image();
 
   const verifyParentalPIN = () => {
     if (pinInput === settings.adultPin) {
-      setSection(AppSection.Main);
+
       if (pendingAdultItem) {
+
+        setSection(AppSection.Main);
+
         const item = pendingAdultItem;
         setPendingAdultItem(null);
         triggerPlay(item);
+
+      } else {
+
+        const newSettings = {
+          ...settings,
+          isAdultPinLocked: false
+        };
+
+        setSettings(newSettings);
+        storage.saveSettings(newSettings);
+
+        setSection(AppSection.Main);
+
       }
     } else {
       setPinInput('');
@@ -618,9 +659,28 @@ const resumeSeriesFromDashboard = async (
   }, 100);
 };
 useEffect(() => {
-  const featured = items.filter(
-    i => i.type === "movie" || i.type === "series"
-  );
+  const blockedWords = [
+  "adult",
+  "xxx",
+  "porn",
+  "sex",
+  "18+",
+  "erotic",
+  "erotica",
+  "erótico",
+  "erótica",
+  "hentai"
+];
+
+const featured = items.filter(i => {
+  if (i.type !== "movie" && i.type !== "series") {
+    return false;
+  }
+
+  const text = `${i.name ?? ""} ${i.genre ?? ""} ${i.description ?? ""}`.toLowerCase();
+
+  return !blockedWords.some(word => text.includes(word));
+});
 
   if (featured.length === 0) return;
 
@@ -867,9 +927,30 @@ if (
                 // Toggle Quality
                 setSettings(prev => ({ ...prev, autoQuality: !prev.autoQuality }));
               } else if (settingsIndex === 3) {
-                // Toggle Parental locked state
-                setSettings(prev => ({ ...prev, isAdultPinLocked: !prev.isAdultPinLocked }));
-              } else if (settingsIndex === 4) {
+
+  if (settings.isAdultPinLocked) {
+
+    setPinInput("");
+    setPinError("");
+    setFocusedPinKeypadIndex(0);
+    setPendingAdultItem(null);
+    setSection(AppSection.PinLock);
+
+  } else {
+
+    const newSettings = {
+      ...settings,
+      isAdultPinLocked: true,
+    };
+
+    setSettings(newSettings);
+    storage.saveSettings(newSettings);
+
+  }
+
+
+
+} else if (settingsIndex === 4) {
   // Category Manager
   setShowCategoryManager(true);
 
@@ -1258,93 +1339,15 @@ else if (e.key === 'ArrowDown') {
 
 </div>
 
-    <h2 className="text-2xl font-semibold mb-6">
-      Continuar viendo
-    </h2>
-
-    <div className="flex gap-6 overflow-x-auto">
-      {continueWatching.map(({ item, progress }) => (
-        <div
-  key={item.id}
-  className="w-52 shrink-0 cursor-pointer"
-  onClick={async () => {
-  if (item.type === "series") {
-
-    const fullSeries = await openSeriesDetail(item);
-
-    if (fullSeries && progress.episodeId) {
-      triggerPlay(fullSeries, progress.episodeId);
-    }
-
-  } else {
-    triggerPlay(item);
-  }
-}}
->
-          <img
-            src={item.logo}
-            alt={item.name}
-            className="w-52 h-72 object-cover rounded-2xl"
-          />
-          <p className="mt-3 text-sm">
-            {item.name}
-          </p>
-        </div>
-      ))}
-    </div>
-
-    <ContentRow
-  title="⭐ Películas mejor valoradas"
-  items={items
-    .filter(i => i.type === "movie")
-    .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
-    .slice(0, 10)}
-  onSelect={triggerPlay}
+    
+    <Dashboard
+  items={items}
+  continueWatching={continueWatching}
+  triggerPlay={triggerPlay}
+  playSelectedItem={playSelectedItem}
+  openSeriesDetail={openSeriesDetail}
+  onExploreCatalog={() => setSection(AppSection.Main)}
 />
-
-<ContentRow
-  title="🆕 Añadidas recientemente"
-  items={items
-    .filter(i => i.type === "movie")
-    .sort((a, b) => Number(b.id) - Number(a.id))
-    .slice(0, 10)}
-  onSelect={triggerPlay}
-/>
-
-<ContentRow
-  title="📺 Series"
-  items={items
-    .filter(i => i.type === "series")
-    .slice(0, 10)}
-  onSelect={playSelectedItem}
-/>
-
-<ContentRow
-  title="📡 TV en vivo"
-  items={items
-    .filter(i => i.type === "live")
-    .slice(0, 10)}
-  onSelect={triggerPlay}
-  posterHeight="h-52"
-  renderPoster={(item) => (
-    <div className="w-52 h-52 rounded-2xl bg-[#111] flex items-center justify-center">
-      <img
-        src={item.logo}
-        alt={item.name}
-        className="max-w-full max-h-full object-contain p-6"
-      />
-    </div>
-  )}
-/>
-
-    <div className="mt-10">
-      <button
-        onClick={() => setSection(AppSection.Main)}
-        className="px-8 py-3 rounded-xl bg-[#0066FF] text-white font-bold"
-      >
-        Explorar catálogo
-      </button>
-    </div>
   </div>
 )}
       {/* 2. --- LOGIN XTREAM SCREEN --- */}
