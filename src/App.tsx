@@ -924,9 +924,6 @@ if (
                 const nextSizeIdx = (sizes.indexOf(settings.fontSize) + 1) % sizes.length;
                 setSettings(prev => ({ ...prev, fontSize: sizes[nextSizeIdx] }));
               } else if (settingsIndex === 2) {
-                // Toggle Quality
-                setSettings(prev => ({ ...prev, autoQuality: !prev.autoQuality }));
-              } else if (settingsIndex === 3) {
 
   if (settings.isAdultPinLocked) {
 
@@ -948,7 +945,10 @@ if (
 
   }
 
+} else if (settingsIndex === 3) {
 
+  // Cambiar PIN
+  // (La funcionalidad se implementará en el siguiente paso)
 
 } else if (settingsIndex === 4) {
   // Category Manager
@@ -1530,28 +1530,12 @@ else if (e.key === 'ArrowDown') {
                         </span>
                       </div>
 
-                      {/* Video streaming auto quality */}
-                      <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-                          settingsIndex === 2 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
-                        }`}
-                      >
-                        <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Calidad Adaptativa</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">Usa HLS adaptable automática de alta resolución.</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className={`w-4 h-4 text-[#0066FF] ${settings.autoQuality ? 'opacity-100' : 'opacity-0'}`} />
-                          <span className="text-[10px] font-mono font-bold text-white/60 uppercase">
-                            {settings.autoQuality ? 'Activado' : 'Desactivado'}
-                          </span>
-                        </div>
-                      </div>
+                      
 
                       {/* Parental locked configuration */}
                       <div 
                         className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-                          settingsIndex === 3 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
+                          settingsIndex === 2 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
@@ -1564,9 +1548,28 @@ else if (e.key === 'ArrowDown') {
                             : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
                         }`}>
                           {settings.isAdultPinLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                          {settings.isAdultPinLocked ? 'Bloqueado (1234)' : 'Desbloqueado'}
+                          {settings.isAdultPinLocked ? 'Bloqueado' : 'Desbloqueado'}
                         </span>
                       </div>
+                      {/* Change PIN */}
+<div
+  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+    settingsIndex === 3
+      ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
+      : 'bg-[#0C0C0C] border-white/5 text-white/80'
+  }`}
+>
+  <div>
+    <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+      Cambiar PIN
+    </p>
+    <p className="text-[10px] text-white/40 mt-0.5">
+      Modifica el PIN del control parental.
+    </p>
+  </div>
+
+  <Lock className="w-5 h-5 text-[#0066FF]" />
+</div>
 
                       {/* Category Manager */}
 <div
