@@ -27,17 +27,24 @@ export default function ContentRow({
       <div className="flex gap-6 overflow-x-auto">
         {items.map((item, index) => (
           <div
-            key={item.id}
-            className={`w-52 shrink-0 cursor-pointer rounded-2xl transition-all ${
+  key={item.id}
+  style={
   focusedIndex === index
-    ? "bg-red-600 scale-105"
-    : ""
-}`}
-            onClick={() => {
-  console.log("CLICK:", item.name);
-  onSelect(item);
-}}
-          >
+    ? {
+        border: "4px solid #0066FF",
+        borderRadius: "18px",
+        transform: "scale(1.05)",
+        boxShadow: "0 0 30px rgba(0,102,255,.65)",
+        transition: "all .2s ease",
+      }
+    : {}
+}
+  className="w-52 shrink-0 cursor-pointer rounded-2xl"
+  onClick={() => {
+    console.log("CLICK:", item.name);
+    onSelect(item);
+  }}
+>
             {renderPoster ? (
   renderPoster(item)
 ) : (

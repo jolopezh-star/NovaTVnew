@@ -39,7 +39,7 @@ import {
   getCurrentProgram,
 } from './services/epg';
 import HomeHeader from "./components/HomeHeader";
-import Dashboard from "./components/Dashboard";
+import Dashboard2 from "./components/Dashboard2";
 
 export default function App() {
 
@@ -1545,7 +1545,7 @@ else if (e.key === 'ArrowDown') {
 </div>
 
     
-    <Dashboard
+    <Dashboard2
     dashboardRowIndex={dashboardRowIndex}
     dashboardItemIndex={dashboardItemIndex}
   items={items}
