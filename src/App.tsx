@@ -105,6 +105,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   
   const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
   const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
+  const [dashboardItemIndex, setDashboardItemIndex] = useState(0);
   // --- parental PIN LOCK ---
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
   const [pinInput, setPinInput] = useState('');
@@ -425,6 +426,7 @@ fetchXtreamSeriesStreams(creds)
 setSection(AppSection.Dashboard);
 setDashboardRowIndex(0);
 setDashboardColumnIndex(0);
+setDashboardItemIndex(0);
 setActiveArea('sidebar');
       } else {
   if (!isAuto) {
@@ -481,6 +483,7 @@ if (firstLive) setSelectedCategory(firstLive.id);
 setSection(AppSection.Dashboard);
 setDashboardRowIndex(0);
 setDashboardColumnIndex(0);
+setDashboardItemIndex(0);
 setActiveArea('sidebar');
     } catch (e) {
       setErrorMessage('Ocurrió un error al procesar la lista M3U.');
@@ -497,6 +500,7 @@ setActiveArea('sidebar');
 setSection(AppSection.Dashboard);
 setDashboardRowIndex(0);
 setDashboardColumnIndex(0);
+setDashboardItemIndex(0);
 setActiveArea('sidebar');
   };
 const getProgramProgress = (start: string, end: string): number => {
@@ -859,41 +863,25 @@ if (
         }
       }
       // DASHBOARD SPATIAL NAVIGATION
+// DASHBOARD SPATIAL NAVIGATION
 else if (section === AppSection.Dashboard) {
 
-  if (e.key === "ArrowLeft") {
+  if (dashboardRowIndex === 0) {
 
-    setDashboardColumnIndex(0);
-
-}
-
-  else if (e.key === "ArrowRight") {
-
-    setDashboardColumnIndex(1);
-
-}
-
-  else if (e.key === "ArrowDown") {
-
-    if (dashboardRowIndex < 6) {
-      setDashboardRowIndex(prev => prev + 1);
+    if (e.key === "ArrowLeft") {
       setDashboardColumnIndex(0);
     }
 
-}
-
-  else if (e.key === "ArrowUp") {
-
-    if (dashboardRowIndex > 0) {
-        setDashboardRowIndex(prev => prev - 1);
-        setDashboardColumnIndex(0);
+    else if (e.key === "ArrowRight") {
+      setDashboardColumnIndex(1);
     }
 
-}
+    else if (e.key === "ArrowDown") {
+      setDashboardRowIndex(1);
+      setDashboardItemIndex(0);
+    }
 
-  else if (e.key === "Enter") {
-
-  {
+    else if (e.key === "Enter") {
 
       if (dashboardColumnIndex === 0) {
 
@@ -919,7 +907,50 @@ else if (section === AppSection.Dashboard) {
 
   }
 
-  else if (e.key === "Backspace" || e.key === "Escape") {
+  else {
+
+    if (e.key === "ArrowLeft") {
+
+      if (dashboardItemIndex > 0) {
+        setDashboardItemIndex(prev => prev - 1);
+      }
+
+    }
+
+    else if (e.key === "ArrowRight") {
+
+      setDashboardItemIndex(prev => prev + 1);
+
+    }
+
+    else if (e.key === "ArrowDown") {
+
+      if (dashboardRowIndex < 6) {
+        setDashboardRowIndex(prev => prev + 1);
+        setDashboardItemIndex(0);
+      }
+
+    }
+
+    else if (e.key === "ArrowUp") {
+
+      if (dashboardRowIndex === 1) {
+
+        setDashboardRowIndex(0);
+        setDashboardColumnIndex(0);
+
+      } else {
+
+        setDashboardRowIndex(prev => prev - 1);
+        setDashboardItemIndex(0);
+
+      }
+
+    }
+
+  }
+
+  if (e.key === "Backspace" || e.key === "Escape") {
 
     setSection(AppSection.Main);
 
@@ -1516,6 +1547,7 @@ else if (e.key === 'ArrowDown') {
     
     <Dashboard
     dashboardRowIndex={dashboardRowIndex}
+    dashboardItemIndex={dashboardItemIndex}
   items={items}
   continueWatching={continueWatching}
   triggerPlay={triggerPlay}

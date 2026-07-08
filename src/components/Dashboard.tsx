@@ -3,6 +3,7 @@ import { storage } from "../utils";
 
 interface DashboardProps {
   dashboardRowIndex: number;
+  dashboardItemIndex: number;
   items: any[];
   continueWatching: any[];
   triggerPlay: (item: any, episodeId?: string) => void;
@@ -13,6 +14,7 @@ interface DashboardProps {
 
 export default function Dashboard({
   dashboardRowIndex,
+  dashboardItemIndex,
   items,
   continueWatching,
   triggerPlay,
@@ -22,7 +24,7 @@ export default function Dashboard({
 }: DashboardProps) {
   const recentChannels = storage.getRecentChannels();
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-10">
+    <div className="text-white">
 {recentChannels.length > 0 && (
   <div
     className={`rounded-2xl transition-all ${
@@ -50,43 +52,35 @@ export default function Dashboard({
   </div>
 )}
     
-        {continueWatching.length > 0 && (
-<>
-<h2
-  className="text-2xl font-semibold mb-6"
->
-  Continuar viendo
-</h2>
+       {continueWatching.length > 0 && (
+  <ContentRow
+    title="▶ Continuar viendo"
+    items={continueWatching.map(({ item }) => item)}
+    focusedIndex={dashboardRowIndex === 2 ? dashboardItemIndex : -1}
+    onSelect={async (item) => {
 
-<div className="flex gap-6 overflow-x-auto">
-  {continueWatching.map(({ item, progress }) => (
-    <div
-      key={item.id}
-      className="w-52 shrink-0 cursor-pointer"
-      onClick={async () => {
-        if (item.type === "series") {
-          const fullSeries = await openSeriesDetail(item);
+      const progress = continueWatching.find(
+        p => p.item.id === item.id
+      );
 
-          if (fullSeries && progress.episodeId) {
-            triggerPlay(fullSeries, progress.episodeId);
-          }
-        } else {
-          triggerPlay(item);
+      if (!progress) return;
+
+      if (item.type === "series") {
+
+        const fullSeries = await openSeriesDetail(item);
+
+        if (fullSeries && progress.progress.episodeId) {
+          triggerPlay(fullSeries, progress.progress.episodeId);
         }
-      }}
-    >
-      <img
-        src={item.logo}
-        alt={item.name}
-        className="w-52 h-72 object-cover rounded-2xl"
-      />
-      <p className="mt-3 text-sm">
-        {item.name}
-      </p>
-    </div>
-  ))}
-</div>
-</>
+
+      } else {
+
+        triggerPlay(item);
+
+      }
+
+    }}
+  />
 )}
   <ContentRow
   title="⭐ Películas mejor valoradas"

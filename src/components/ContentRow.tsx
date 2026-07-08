@@ -30,7 +30,7 @@ export default function ContentRow({
             key={item.id}
             className={`w-52 shrink-0 cursor-pointer rounded-2xl transition-all ${
   focusedIndex === index
-    ? "ring-4 ring-[#0066FF] scale-105"
+    ? "bg-red-600 scale-105"
     : ""
 }`}
             onClick={() => {
