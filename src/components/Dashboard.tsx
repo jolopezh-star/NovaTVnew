@@ -2,6 +2,7 @@ import ContentRow from "./ContentRow";
 import { storage } from "../utils";
 
 interface DashboardProps {
+  dashboardRowIndex: number;
   items: any[];
   continueWatching: any[];
   triggerPlay: (item: any, episodeId?: string) => void;
@@ -11,6 +12,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({
+  dashboardRowIndex,
   items,
   continueWatching,
   triggerPlay,
@@ -21,10 +23,18 @@ export default function Dashboard({
   const recentChannels = storage.getRecentChannels();
   return (
     <div className="min-h-screen bg-[#050505] text-white p-10">
-       {recentChannels.length > 0 && (
-  <ContentRow
+{recentChannels.length > 0 && (
+  <div
+    className={`rounded-2xl transition-all ${
+      dashboardRowIndex === 1
+        ? "ring-4 ring-[#0066FF] shadow-[0_0_30px_rgba(0,102,255,0.45)]"
+        : ""
+    }`}
+  >
+    <ContentRow
     title="🕘 Canales recientes"
     items={recentChannels}
+    focusedIndex={dashboardRowIndex === 1 ? 0 : -1}
     onSelect={triggerPlay}
     posterHeight="h-52"
     renderPoster={(item) => (
@@ -36,8 +46,10 @@ export default function Dashboard({
         />
       </div>
     )}
-  />
-)} 
+      />
+  </div>
+)}
+    
         {continueWatching.length > 0 && (
 <>
 <h2

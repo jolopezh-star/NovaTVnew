@@ -102,8 +102,9 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [seriesModalFocusIndex, setSeriesModalFocusIndex] = useState<number>(0); // 0: Season selector, 1: Episodes list, 2: Favorite toggle, 3: Close btn
   const [featuredItem, setFeaturedItem] = useState<IPTVItem | null>(null);
   const lastFeaturedIndex = useRef(-1);
-  const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
+  
   const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
+  const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
   // --- parental PIN LOCK ---
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
   const [pinInput, setPinInput] = useState('');
@@ -860,16 +861,68 @@ if (
       // DASHBOARD SPATIAL NAVIGATION
 else if (section === AppSection.Dashboard) {
 
-  if (e.key === "ArrowDown") {
-  setDashboardRowIndex(prev => Math.min(prev + 1, 6));
+  if (e.key === "ArrowLeft") {
+
+    setDashboardColumnIndex(0);
+
+}
+
+  else if (e.key === "ArrowRight") {
+
+    setDashboardColumnIndex(1);
+
+}
+
+  else if (e.key === "ArrowDown") {
+
+    if (dashboardRowIndex < 6) {
+      setDashboardRowIndex(prev => prev + 1);
+      setDashboardColumnIndex(0);
+    }
+
 }
 
   else if (e.key === "ArrowUp") {
-    setDashboardRowIndex(prev => Math.max(0, prev - 1));
+
+    if (dashboardRowIndex > 0) {
+        setDashboardRowIndex(prev => prev - 1);
+        setDashboardColumnIndex(0);
+    }
+
+}
+
+  else if (e.key === "Enter") {
+
+  {
+
+      if (dashboardColumnIndex === 0) {
+
+        if (featuredItem) {
+
+          if (featuredItem.type === "series") {
+            openSeriesDetail(featuredItem);
+          } else {
+            playSelectedItem(featuredItem);
+          }
+
+        }
+
+      } else {
+
+        setSection(AppSection.Main);
+        setActiveArea("grid");
+        setGridFocusedIndex(0);
+
+      }
+
+    }
+
   }
 
   else if (e.key === "Backspace" || e.key === "Escape") {
+
     setSection(AppSection.Main);
+
   }
 
 }
@@ -1354,10 +1407,10 @@ else if (e.key === 'ArrowDown') {
   <div className="min-h-screen bg-[#050505] text-white p-10">
     <div
   className={`mb-10 rounded-3xl overflow-hidden relative h-[68vh] min-h-[520px] max-h-[760px] transition-all duration-300 ${
-    dashboardRowIndex === 0
-      ? "ring-4 ring-[#0066FF] shadow-[0_0_40px_rgba(0,102,255,0.55)]"
-      : ""
-  }`}
+  dashboardRowIndex === 0
+    ? "ring-4 ring-[#0066FF] shadow-[0_0_40px_rgba(0,102,255,0.55)]"
+    : ""
+}`}
 >
 
   <img
@@ -1435,7 +1488,7 @@ else if (e.key === 'ArrowDown') {
     }
   }}
     className={`px-8 py-4 rounded-2xl transition font-bold text-white flex items-center gap-3 ${
-  dashboardRowIndex === 0
+ dashboardColumnIndex === 0
     ? "bg-[#0066FF] ring-4 ring-white scale-105"
     : "bg-[#0066FF] hover:bg-[#0050cc]"
 }`}
@@ -1446,7 +1499,7 @@ else if (e.key === 'ArrowDown') {
   <button
   onClick={() => setSection(AppSection.Main)}
   className={`px-8 py-4 rounded-2xl font-bold text-white transition ${
-    dashboardRowIndex === 1
+    dashboardColumnIndex === 1
       ? "bg-[#0066FF] ring-4 ring-white scale-105"
       : "bg-white/10 hover:bg-white/20"
   }`}
@@ -1462,6 +1515,7 @@ else if (e.key === 'ArrowDown') {
 
     
     <Dashboard
+    dashboardRowIndex={dashboardRowIndex}
   items={items}
   continueWatching={continueWatching}
   triggerPlay={triggerPlay}
