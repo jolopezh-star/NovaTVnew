@@ -15,7 +15,10 @@ export default function Dashboard2({
   dashboardRowIndex,
   dashboardItemIndex,
   items,
+  continueWatching,
   triggerPlay,
+  playSelectedItem,
+  openSeriesDetail,
 }: Dashboard2Props) {
 
   const recentChannels = items
@@ -36,6 +39,38 @@ export default function Dashboard2({
         onSelect={triggerPlay}
         posterHeight="h-52"
       />
+      <ContentRow
+  title="▶ Continuar viendo"
+  items={continueWatching.map(({ item }) => item)}
+  focusedIndex={
+    dashboardRowIndex === 2
+      ? dashboardItemIndex
+      : -1
+  }
+  onSelect={async (item) => {
+
+    const progress = continueWatching.find(
+      p => p.item.id === item.id
+    );
+
+    if (!progress) return;
+
+    if (item.type === "series") {
+
+      const fullSeries = await openSeriesDetail(item);
+
+      if (fullSeries && progress.progress.episodeId) {
+        triggerPlay(fullSeries, progress.progress.episodeId);
+      }
+
+    } else {
+
+      triggerPlay(item);
+
+    }
+
+  }}
+/>
 
     </div>
   );
