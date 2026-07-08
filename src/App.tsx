@@ -108,6 +108,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
+  const [pendingReset, setPendingReset] = useState(false);
   
   const [focusedPinKeypadIndex, setFocusedPinKeypadIndex] = useState(0);
 
@@ -564,35 +565,85 @@ const img = new Image();
   };
 
   const verifyParentalPIN = () => {
-    if (pinInput === settings.adultPin) {
 
-      if (pendingAdultItem) {
+  if (pinInput !== settings.adultPin) {
+    setPinInput("");
+    setPinError("PIN incorrecto. Intenta de nuevo.");
+    return;
+  }
 
-        setSection(AppSection.Main);
+  if (pendingReset) {
 
-        const item = pendingAdultItem;
-        setPendingAdultItem(null);
-        triggerPlay(item);
+    setPendingReset(false);
 
-      } else {
-
-        const newSettings = {
-          ...settings,
-          isAdultPinLocked: false
-        };
-
-        setSettings(newSettings);
-        storage.saveSettings(newSettings);
-
-        setSection(AppSection.Main);
-
-      }
+    if (
+      confirm(
+        "¿Estás seguro de que deseas restablecer la aplicación? Se borrarán tus listas, favoritos e historial."
+      )
+    ) {
+      clearCacheAndReset();
     } else {
-      setPinInput('');
-      setPinError('PIN incorrecto. Intenta de nuevo.');
+      setSection(AppSection.Main);
     }
+
+    return;
+  }
+
+  if (pendingAdultItem) {
+
+    setSection(AppSection.Main);
+
+    const item = pendingAdultItem;
+    setPendingAdultItem(null);
+    triggerPlay(item);
+
+    return;
+  }
+
+  const newSettings = {
+    ...settings,
+    isAdultPinLocked: false,
   };
 
+  setSettings(newSettings);
+  storage.saveSettings(newSettings);
+
+  setSection(AppSection.Main);
+
+};
+const handleChangePin = () => {
+  setChangePinError("");
+
+  if (currentPinInput !== settings.adultPin) {
+    setChangePinError("El PIN actual es incorrecto.");
+    return;
+  }
+
+  if (!/^\d{4}$/.test(newPinInput)) {
+    setChangePinError("El nuevo PIN debe tener 4 dígitos.");
+    return;
+  }
+
+  if (newPinInput !== confirmPinInput) {
+    setChangePinError("Los PIN no coinciden.");
+    return;
+  }
+
+  const newSettings = {
+    ...settings,
+    adultPin: newPinInput,
+  };
+
+  setSettings(newSettings);
+  storage.saveSettings(newSettings);
+
+  setCurrentPinInput("");
+  setNewPinInput("");
+  setConfirmPinInput("");
+  setChangePinError("");
+
+  setShowChangePin(false);
+};
   // --- SERIES DETAILS ---
   const openSeriesDetail = async (series: IPTVItem) => {
     setSelectedSeason(1);
@@ -731,7 +782,8 @@ const featured = items.filter(i => {
     storage.clearM3UList();
     localStorage.removeItem('webos_favorites');
     localStorage.removeItem('webos_playback_progress');
-    localStorage.removeItem('webos_settings');
+localStorage.removeItem('webos_recent_channels');
+localStorage.removeItem('webos_settings');
     window.location.reload();
   };
 
@@ -985,10 +1037,15 @@ if (
   setShowCategoryManager(true);
 
 } else if (settingsIndex === 5) {
-  // Clear cache & Reset App
-  if (confirm('¿Estás seguro de que deseas restablecer la aplicación? Se borrarán tus listas, favoritos e historial.')) {
-    clearCacheAndReset();
-  }
+
+  setPendingReset(true);
+  setPinInput("");
+  setPinError("");
+  setFocusedPinKeypadIndex(0);
+  setPendingAdultItem(null);
+  setSection(AppSection.PinLock);
+
+
 
 } else if (settingsIndex === 6) {
   // Exit Settings / Return to TV
@@ -2308,7 +2365,7 @@ const isInProgress =
     setNewPin={setNewPinInput}
     setConfirmPin={setConfirmPinInput}
     error={changePinError}
-    onSave={() => {}}
+    onSave={handleChangePin}
     onClose={() => setShowChangePin(false)}
   />
 )}
