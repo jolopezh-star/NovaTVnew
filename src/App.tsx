@@ -38,6 +38,11 @@ import {
   formatEPGTime,
   getCurrentProgram,
 } from './services/epg';
+import {
+  buildSearchIndex,
+  searchItems,
+  SearchIndexItem,
+} from "./searchEngine";
 import HomeHeader from "./components/HomeHeader";
 import Dashboard2 from "./components/Dashboard2";
 
@@ -57,6 +62,8 @@ export default function App() {
   const [epgCache, setEpgCache] = useState<Record<string, EPGEntry[]>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('live-news');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchIndex, setSearchIndex] = useState<SearchIndexItem[]>([]);
+  const [searchResults, setSearchResults] = useState<IPTVItem[]>([]);
   
   // --- USER PROGRESS & PREFERENCES ---
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -172,6 +179,27 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   useEffect(() => {
     storage.saveSettings(settings);
   }, [settings]);
+  useEffect(() => {
+
+  const index = buildSearchIndex(items);
+
+  setSearchIndex(index);
+
+  console.log("Search Index:", index.length);
+
+}, [items]);
+useEffect(() => {
+
+  if (searchQuery.length < 2) {
+    setSearchResults([]);
+    return;
+  }
+
+  setSearchResults(
+    searchItems(searchIndex, searchQuery)
+  );
+
+}, [searchQuery, searchIndex]);
   
  useEffect(() => {
 
@@ -1729,6 +1757,52 @@ else if (e.key === 'ArrowDown') {
                 </span>
               </div>
             </div>
+            <div className="px-8 py-4 border-b border-white/5 bg-[#080808]">
+
+  <input
+    type="text"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    placeholder="Buscar..."
+    className="w-full max-w-xl rounded-xl bg-[#111] border border-white/10 px-5 py-3 text-white"
+  />
+
+  <div className="mt-3 text-xs text-white/50">
+    Resultados encontrados: {searchResults.length}
+  </div>
+<div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+
+  {searchResults.map((item) => (
+
+    <div
+      key={item.id}
+      className="flex items-center gap-3 bg-[#111] rounded-lg px-3 py-2"
+    >
+
+      <img
+        src={item.logo}
+        alt={item.name}
+        className="w-12 h-16 object-cover rounded"
+      />
+
+      <div>
+
+        <div className="font-semibold">
+          {item.name}
+        </div>
+
+        <div className="text-xs text-white/50">
+          {item.type} {item.year ? `• ${item.year}` : ""}
+        </div>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+</div>
 
             {/* Catalog content panel split (Left panel Categories, Right panel stream tiles) */}
             <div className="flex-1 flex overflow-hidden">
