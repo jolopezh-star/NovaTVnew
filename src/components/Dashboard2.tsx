@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import ContentRow from "./ContentRow";
 
 interface Dashboard2Props {
@@ -45,66 +46,115 @@ const rowSizes = {
   4: recentMovies.length,
   5: series.length,
 };
+const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+useEffect(() => {
+
+  if (dashboardRowIndex === 0) {
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    return;
+  }
+
+  rowRefs.current[dashboardRowIndex]?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+}, [dashboardRowIndex]);
 return (
 <div className="text-white mt-8">
 
-<ContentRow
-title="🕘 Canales recientes"
-items={recentChannels}
-focusedIndex={dashboardRowIndex === 1 ? dashboardItemIndex : -1}
-onSelect={triggerPlay}
-posterHeight="h-52"
-/>
+<div
+  ref={(el) => {
+    rowRefs.current[1] = el;
+  }}
+>
+  <ContentRow
+    title="🕘 Canales recientes"
+    items={recentChannels}
+    focusedIndex={dashboardRowIndex === 1 ? dashboardItemIndex : -1}
+    onSelect={triggerPlay}
+    posterHeight="h-52"
+  />
+</div>
 
-<ContentRow
-title="▶ Continuar viendo"
-items={continueWatching.map(({ item }) => item)}
-focusedIndex={dashboardRowIndex === 2 ? dashboardItemIndex : -1}
-onSelect={async (item) => {
+<div
+  ref={(el) => {
+    rowRefs.current[2] = el;
+  }}
+>
+  <ContentRow
+    title="▶ Continuar viendo"
+    items={continueWatching.map(({ item }) => item)}
+    focusedIndex={dashboardRowIndex === 2 ? dashboardItemIndex : -1}
+    onSelect={async (item) => {
 
-const progress = continueWatching.find(
-p => p.item.id === item.id
-);
+      const progress = continueWatching.find(
+        p => p.item.id === item.id
+      );
 
-if (!progress) return;
+      if (!progress) return;
 
-if (item.type === "series") {
+      if (item.type === "series") {
 
-const fullSeries = await openSeriesDetail(item);
+        const fullSeries = await openSeriesDetail(item);
 
-if (fullSeries && progress.progress.episodeId) {
-triggerPlay(fullSeries, progress.progress.episodeId);
-}
+        if (fullSeries && progress.progress.episodeId) {
+          triggerPlay(fullSeries, progress.progress.episodeId);
+        }
 
-} else {
+      } else {
 
-triggerPlay(item);
+        triggerPlay(item);
 
-}
+      }
 
-}}
-/>
+    }}
+  />
+</div>
+<div
+  ref={(el) => {
+    rowRefs.current[3] = el;
+  }}
+>
+  <ContentRow
+    title="⭐ Películas mejor valoradas"
+    items={topMovies}
+    focusedIndex={dashboardRowIndex === 3 ? dashboardItemIndex : -1}
+    onSelect={triggerPlay}
+  />
+</div>
 
-<ContentRow
-title="⭐ Películas mejor valoradas"
-items={topMovies}
-focusedIndex={dashboardRowIndex === 3 ? dashboardItemIndex : -1}
-onSelect={triggerPlay}
-/>
+<div
+  ref={(el) => {
+    rowRefs.current[4] = el;
+  }}
+>
+  <ContentRow
+    title="🆕 Añadidas recientemente"
+    items={recentMovies}
+    focusedIndex={dashboardRowIndex === 4 ? dashboardItemIndex : -1}
+    onSelect={triggerPlay}
+  />
+</div>
 
-<ContentRow
-title="🆕 Añadidas recientemente"
-items={recentMovies}
-focusedIndex={dashboardRowIndex === 4 ? dashboardItemIndex : -1}
-onSelect={triggerPlay}
-/>
-
-<ContentRow
-title="📺 Series"
-items={series}
-focusedIndex={dashboardRowIndex === 5 ? dashboardItemIndex : -1}
-onSelect={playSelectedItem}
-/>
+<div
+  ref={(el) => {
+    rowRefs.current[5] = el;
+  }}
+>
+  <ContentRow
+    title="📺 Series"
+    items={series}
+    focusedIndex={dashboardRowIndex === 5 ? dashboardItemIndex : -1}
+    onSelect={playSelectedItem}
+  />
+</div>
 
 </div>
 );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { IPTVItem } from "../types";
 
 interface ContentRowProps {
@@ -18,6 +18,17 @@ export default function ContentRow({
   renderPoster,
   focusedIndex = -1,
 }: ContentRowProps) {
+  const posterRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+useEffect(() => {
+  if (focusedIndex < 0) return;
+
+  posterRefs.current[focusedIndex]?.scrollIntoView({
+    behavior: "smooth",
+    inline: "center",
+    block: "nearest",
+  });
+}, [focusedIndex]);
   return (
     <>
       <h2 className="text-2xl font-semibold mt-12 mb-6">
@@ -28,6 +39,9 @@ export default function ContentRow({
         {items.map((item, index) => (
           <div
   key={item.id}
+  ref={(el) => {
+    posterRefs.current[index] = el;
+  }}
   style={
   focusedIndex === index
     ? {
