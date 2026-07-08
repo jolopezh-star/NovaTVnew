@@ -102,12 +102,13 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [seriesModalFocusIndex, setSeriesModalFocusIndex] = useState<number>(0); // 0: Season selector, 1: Episodes list, 2: Favorite toggle, 3: Close btn
   const [featuredItem, setFeaturedItem] = useState<IPTVItem | null>(null);
   const lastFeaturedIndex = useRef(-1);
-  const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
+  const [dashboardRowIndex, setDashboardRowIndex] = useState<0 | 1>(0);
   const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
   // --- parental PIN LOCK ---
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
+  
   const [focusedPinKeypadIndex, setFocusedPinKeypadIndex] = useState(0);
 
   // --- FOCUS SPATIAL INDEXES ---
@@ -286,7 +287,9 @@ return () => clearTimeout(timer);
     .filter((i): i is IPTVItem => i !== undefined);
 } else if (activeTab === SidebarTab.Search) {
       if (!searchQuery) return [];
-      result = items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      result = items.filter(i =>
+  (i.name ?? "").toLowerCase().includes(searchQuery.toLowerCase())
+);
     }
 
     // Hide categories configured in Settings (except adult category which uses PIN instead)
@@ -299,6 +302,7 @@ return () => clearTimeout(timer);
 
   const filteredItems = useMemo(
   () => getFilteredItems(),
+  
   [
     items,
     activeTab,
@@ -309,6 +313,7 @@ return () => clearTimeout(timer);
     settings.hiddenCategories,
   ]
 );
+
 const continueWatching = useMemo(() => {
   const progress = storage.getProgress();
 
@@ -1350,17 +1355,25 @@ else if (e.key === 'ArrowDown') {
       playSelectedItem(featuredItem);
     }
   }}
-    className="px-8 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0050cc] transition font-bold text-white flex items-center gap-3"
+    className={`px-8 py-4 rounded-2xl transition font-bold text-white flex items-center gap-3 ${
+  dashboardRowIndex === 0
+    ? "bg-[#0066FF] ring-4 ring-white scale-105"
+    : "bg-[#0066FF] hover:bg-[#0050cc]"
+}`}
   >
     ▶ Reproducir
   </button>
 
   <button
-    onClick={() => setSection(AppSection.Main)}
-    className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold text-white"
-  >
-    Explorar catálogo
-  </button>
+  onClick={() => setSection(AppSection.Main)}
+  className={`px-8 py-4 rounded-2xl font-bold text-white transition ${
+    dashboardRowIndex === 1
+      ? "bg-[#0066FF] ring-4 ring-white scale-105"
+      : "bg-white/10 hover:bg-white/20"
+  }`}
+>
+  Explorar catálogo
+</button>
 
 </div>
 
@@ -1710,6 +1723,7 @@ else if (e.key === 'ArrowDown') {
                             className="w-full bg-[#0C0C0C] border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0066FF] focus:shadow-[0_0_15px_rgba(0,102,255,0.2)]"
                           />
                         </div>
+                        
                       </div>
                     )}
 
@@ -2287,6 +2301,14 @@ const isInProgress =
       )}
       {showChangePin && (
   <ChangePINDialog
+    currentPin={currentPinInput}
+    newPin={newPinInput}
+    confirmPin={confirmPinInput}
+    setCurrentPin={setCurrentPinInput}
+    setNewPin={setNewPinInput}
+    setConfirmPin={setConfirmPinInput}
+    error={changePinError}
+    onSave={() => {}}
     onClose={() => setShowChangePin(false)}
   />
 )}
