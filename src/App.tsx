@@ -102,7 +102,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   const [seriesModalFocusIndex, setSeriesModalFocusIndex] = useState<number>(0); // 0: Season selector, 1: Episodes list, 2: Favorite toggle, 3: Close btn
   const [featuredItem, setFeaturedItem] = useState<IPTVItem | null>(null);
   const lastFeaturedIndex = useRef(-1);
-  const [dashboardRowIndex, setDashboardRowIndex] = useState<0 | 1>(0);
+  const [dashboardRowIndex, setDashboardRowIndex] = useState(0);
   const [dashboardColumnIndex, setDashboardColumnIndex] = useState(0);
   // --- parental PIN LOCK ---
   const [pendingAdultItem, setPendingAdultItem] = useState<IPTVItem | null>(null);
@@ -422,6 +422,8 @@ fetchXtreamSeriesStreams(creds)
         if (firstCat) setSelectedCategory(firstCat.id);
 
 setSection(AppSection.Dashboard);
+setDashboardRowIndex(0);
+setDashboardColumnIndex(0);
 setActiveArea('sidebar');
       } else {
   if (!isAuto) {
@@ -476,6 +478,8 @@ setActiveArea('sidebar');
 if (firstLive) setSelectedCategory(firstLive.id);
 
 setSection(AppSection.Dashboard);
+setDashboardRowIndex(0);
+setDashboardColumnIndex(0);
 setActiveArea('sidebar');
     } catch (e) {
       setErrorMessage('Ocurrió un error al procesar la lista M3U.');
@@ -490,6 +494,8 @@ setActiveArea('sidebar');
     setItems(DEMO_ITEMS);
     setSelectedCategory('live-news');
 setSection(AppSection.Dashboard);
+setDashboardRowIndex(0);
+setDashboardColumnIndex(0);
 setActiveArea('sidebar');
   };
 const getProgramProgress = (start: string, end: string): number => {
@@ -851,6 +857,22 @@ if (
           else if (loginFieldIndex === 4) loadDemoPlaylists();
         }
       }
+      // DASHBOARD SPATIAL NAVIGATION
+else if (section === AppSection.Dashboard) {
+
+  if (e.key === "ArrowDown") {
+  setDashboardRowIndex(prev => Math.min(prev + 1, 6));
+}
+
+  else if (e.key === "ArrowUp") {
+    setDashboardRowIndex(prev => Math.max(0, prev - 1));
+  }
+
+  else if (e.key === "Backspace" || e.key === "Escape") {
+    setSection(AppSection.Main);
+  }
+
+}
 
       // 4. --- MAIN CATALOG SECTION SPATIAL NAV ---
       else if (section === AppSection.Main) {
@@ -1726,6 +1748,22 @@ else if (e.key === 'ArrowDown') {
                     <h2 className="text-2xl font-bold mb-6">
                       Administrador de categorías
                     </h2>
+                    <div className="flex justify-end mb-5">
+  <button
+    onClick={() => {
+      const newSettings = {
+        ...settings,
+        hiddenCategories: [],
+      };
+
+      setSettings(newSettings);
+      storage.saveSettings(newSettings);
+    }}
+    className="px-4 py-2 rounded-xl bg-[#0066FF] hover:bg-[#0A7BFF] transition text-white text-xs font-bold uppercase tracking-wider"
+  >
+    Mostrar todas
+  </button>
+</div>
 
                     <div className="space-y-2 max-h-[600px] overflow-y-auto">
   {allCategories.map((cat) => (
