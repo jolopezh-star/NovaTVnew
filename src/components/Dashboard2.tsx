@@ -25,53 +25,87 @@ export default function Dashboard2({
     .filter(item => item.type === "live")
     .slice(0, 10);
 
-  return (
-    <div className="text-white mt-8">
+  const topMovies = items
+    .filter(item => item.type === "movie")
+    .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
+    .slice(0, 10);
 
-      <ContentRow
-        title="🕘 Canales recientes"
-        items={recentChannels}
-        focusedIndex={
-  dashboardRowIndex === 1
-    ? dashboardItemIndex
-    : -1
-}
-        onSelect={triggerPlay}
-        posterHeight="h-52"
-      />
-      <ContentRow
-  title="▶ Continuar viendo"
-  items={continueWatching.map(({ item }) => item)}
-  focusedIndex={
-    dashboardRowIndex === 2
-      ? dashboardItemIndex
-      : -1
-  }
-  onSelect={async (item) => {
+const recentMovies = items
+    .filter(item => item.type === "movie")
+    .sort((a, b) => Number(b.id) - Number(a.id))
+    .slice(0, 10);
 
-    const progress = continueWatching.find(
-      p => p.item.id === item.id
-    );
+const series = items
+    .filter(item => item.type === "series")
+    .slice(0, 10);
+const rowSizes = {
+  1: recentChannels.length,
+  2: continueWatching.length,
+  3: topMovies.length,
+  4: recentMovies.length,
+  5: series.length,
+};
+return (
+<div className="text-white mt-8">
 
-    if (!progress) return;
-
-    if (item.type === "series") {
-
-      const fullSeries = await openSeriesDetail(item);
-
-      if (fullSeries && progress.progress.episodeId) {
-        triggerPlay(fullSeries, progress.progress.episodeId);
-      }
-
-    } else {
-
-      triggerPlay(item);
-
-    }
-
-  }}
+<ContentRow
+title="🕘 Canales recientes"
+items={recentChannels}
+focusedIndex={dashboardRowIndex === 1 ? dashboardItemIndex : -1}
+onSelect={triggerPlay}
+posterHeight="h-52"
 />
 
-    </div>
-  );
+<ContentRow
+title="▶ Continuar viendo"
+items={continueWatching.map(({ item }) => item)}
+focusedIndex={dashboardRowIndex === 2 ? dashboardItemIndex : -1}
+onSelect={async (item) => {
+
+const progress = continueWatching.find(
+p => p.item.id === item.id
+);
+
+if (!progress) return;
+
+if (item.type === "series") {
+
+const fullSeries = await openSeriesDetail(item);
+
+if (fullSeries && progress.progress.episodeId) {
+triggerPlay(fullSeries, progress.progress.episodeId);
+}
+
+} else {
+
+triggerPlay(item);
+
+}
+
+}}
+/>
+
+<ContentRow
+title="⭐ Películas mejor valoradas"
+items={topMovies}
+focusedIndex={dashboardRowIndex === 3 ? dashboardItemIndex : -1}
+onSelect={triggerPlay}
+/>
+
+<ContentRow
+title="🆕 Añadidas recientemente"
+items={recentMovies}
+focusedIndex={dashboardRowIndex === 4 ? dashboardItemIndex : -1}
+onSelect={triggerPlay}
+/>
+
+<ContentRow
+title="📺 Series"
+items={series}
+focusedIndex={dashboardRowIndex === 5 ? dashboardItemIndex : -1}
+onSelect={playSelectedItem}
+/>
+
+</div>
+);
 }

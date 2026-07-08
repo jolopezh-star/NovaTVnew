@@ -908,6 +908,88 @@ else if (section === AppSection.Dashboard) {
   }
 
   else {
+    if (e.key === "Enter") {
+
+  switch (dashboardRowIndex) {
+
+    case 1: {
+      const channels = items
+        .filter(i => i.type === "live")
+        .slice(0, 10);
+
+      if (channels[dashboardItemIndex]) {
+        triggerPlay(channels[dashboardItemIndex]);
+      }
+      break;
+    }
+
+    case 2: {
+      const selected = continueWatching[dashboardItemIndex];
+
+      if (!selected) break;
+
+      if (selected.item.type === "series") {
+
+        openSeriesDetail(selected.item).then(fullSeries => {
+
+  if (fullSeries && selected.progress.episodeId) {
+    triggerPlay(fullSeries, selected.progress.episodeId);
+  }
+
+});
+
+        
+
+      } else {
+
+        triggerPlay(selected.item);
+
+      }
+
+      break;
+    }
+
+    case 3: {
+      const movies = items
+        .filter(i => i.type === "movie")
+        .sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0))
+        .slice(0, 10);
+
+      if (movies[dashboardItemIndex]) {
+        triggerPlay(movies[dashboardItemIndex]);
+      }
+
+      break;
+    }
+
+    case 4: {
+      const movies = items
+        .filter(i => i.type === "movie")
+        .sort((a, b) => Number(b.id) - Number(a.id))
+        .slice(0, 10);
+
+      if (movies[dashboardItemIndex]) {
+        triggerPlay(movies[dashboardItemIndex]);
+      }
+
+      break;
+    }
+
+    case 5: {
+      const series = items
+        .filter(i => i.type === "series")
+        .slice(0, 10);
+
+      if (series[dashboardItemIndex]) {
+        openSeriesDetail(series[dashboardItemIndex]);
+      }
+
+      break;
+    }
+
+  }
+
+}
 
     if (e.key === "ArrowLeft") {
 
