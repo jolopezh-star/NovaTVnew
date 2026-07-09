@@ -46,6 +46,8 @@ import {
 import HomeHeader from "./components/HomeHeader";
 import Dashboard2 from "./components/Dashboard2";
 import SearchScreen from "./components/SearchScreen";
+import CatalogHeader from "./components/CatalogHeader";
+import SettingsPanel from "./components/SettingsPanel";
 
 export default function App() {
 
@@ -1170,6 +1172,7 @@ setSection(AppSection.Main);
 
         // C. MAIN GRID VIEW AREA (Channels, Posters, Settings)
         else if (activeArea === 'grid') {
+          console.log("GRID", activeTab, activeArea, e.key);
           
           // SERIES DETAIL MODAL SPATIAL ENGINE
           if (activeSeriesDetail) {
@@ -1331,14 +1334,38 @@ setSection(AppSection.Main);
               }
             }
           } else if (e.key === 'ArrowDown') {
-            if (gridFocusedIndex + cols < filteredItems.length) {
-              setGridFocusedIndex(prev => prev + cols);
-            }
-          } else if (e.key === 'ArrowUp') {
-            if (gridFocusedIndex - cols >= 0) {
-              setGridFocusedIndex(prev => prev - cols);
-            }
-          } else if (e.key === 'Backspace' || e.key === 'Escape') {
+
+  if (activeTab === SidebarTab.Search) {
+
+    if (searchFocusedIndex < searchResults.length - 1) {
+      setSearchFocusedIndex(prev => prev + 1);
+    }
+
+  } else {
+
+    if (gridFocusedIndex + cols < filteredItems.length) {
+      setGridFocusedIndex(prev => prev + cols);
+    }
+
+  }
+
+} else if (e.key === 'ArrowUp') {
+
+  if (activeTab === SidebarTab.Search) {
+
+    if (searchFocusedIndex > 0) {
+      setSearchFocusedIndex(prev => prev - 1);
+    }
+
+  } else {
+
+    if (gridFocusedIndex - cols >= 0) {
+      setGridFocusedIndex(prev => prev - cols);
+    }
+
+  }
+
+} else if (e.key === 'Backspace' || e.key === 'Escape') {
             const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab);
             if (hasCategories) setActiveArea('categories');
             else setActiveArea('sidebar');
@@ -1760,94 +1787,12 @@ else if (e.key === 'ArrowDown') {
           <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#050505]">
             
             {/* Catalog Top Status Banner */}
-            <div className="h-20 px-8 border-b border-white/5 bg-[#0C0C0C] flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-display font-extrabold text-white tracking-tight flex items-center gap-2 uppercase">
-                  {activeTab === SidebarTab.Live && 'Televisión En Vivo'}
-                  {activeTab === SidebarTab.Movies && 'Películas VOD'}
-                  {activeTab === SidebarTab.Series && 'Series de Televisión'}
-                  {activeTab === SidebarTab.Favorites && 'Mis Favoritos'}
-                  {activeTab === SidebarTab.Recents && 'Historial Reciente'}
-                  {activeTab === SidebarTab.Search && 'Buscador Global'}
-                  {activeTab === SidebarTab.SettingsTab && 'Ajustes de webOS'}
-                  {isDemoMode && (
-                    <span className="text-[9px] bg-white/5 border border-white/10 text-white/60 font-mono font-bold px-2 py-0.5 rounded-md ml-2 tracking-widest">
-                      DEMO MODE
-                    </span>
-                  )}
-                </h2>
-
-              </div>
-              <button
-  onClick={() => setSection(AppSection.Dashboard)}
-  className="px-5 py-2 rounded-lg bg-red-600 text-white font-bold z-50"
->
-  INICIO
-</button>
-
-              {/* Red/Green interactive color keys shortcuts */}
-              <div className="flex items-center gap-6 text-[10px] text-white/30 font-mono uppercase tracking-widest">
-                <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse shrink-0" />
-                  <span className="font-medium">R: Favorito rápido</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] shrink-0" />
-                  <span className="font-medium">G: Abrir buscador</span>
-                </span>
-              </div>
-            </div>
-            <div className="px-8 py-4 border-b border-white/5 bg-[#080808]">
-
-  <input
-  ref={searchInputRef}
-  type="text"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    placeholder="Buscar..."
-    className="w-full max-w-xl rounded-xl bg-[#111] border border-white/10 px-5 py-3 text-white"
-  />
-
-  <div className="mt-3 text-xs text-white/50">
-    Resultados encontrados: {searchResults.length}
-  </div>
-<div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-
-  {searchResults.map((item, index) => (
-
-  <div
-    key={item.id}
-    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-      searchFocusedIndex === index
-        ? "bg-[#0066FF] ring-2 ring-white"
-        : "bg-[#111]"
-    }`}
-  >
-
-      <img
-        src={item.logo}
-        alt={item.name}
-        className="w-12 h-16 object-cover rounded"
-      />
-
-      <div>
-
-        <div className="font-semibold">
-          {item.name}
-        </div>
-
-        <div className="text-xs text-white/50">
-          {item.type} {item.year ? `• ${item.year}` : ""}
-        </div>
-
-      </div>
-
-    </div>
-
-  ))}
-
-</div>
-</div>
+            <CatalogHeader
+  activeTab={activeTab}
+  isDemoMode={isDemoMode}
+  onGoHome={() => setSection(AppSection.Dashboard)}
+/>
+           
 
             {/* Catalog content panel split (Left panel Categories, Right panel stream tiles) */}
             <div className="flex-1 flex overflow-hidden">
@@ -1891,6 +1836,7 @@ else if (e.key === 'ArrowDown') {
               )}
 
               {/* RIGHT CONTENT DISPLAY PANEL */}
+              
               <div className="flex-1 flex flex-col overflow-hidden p-6">
                 
                 {/* A. If we are in Settings Tab */}
@@ -1937,6 +1883,7 @@ else if (e.key === 'ArrowDown') {
                           {settings.fontSize === 'normal' ? 'Normal' : settings.fontSize === 'large' ? 'Grande' : 'Muy Grande'}
                         </span>
                       </div>
+                      
 
                       
 
