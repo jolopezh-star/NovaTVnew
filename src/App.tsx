@@ -49,7 +49,7 @@ import SearchScreen from "./components/SearchScreen";
 import CatalogHeader from "./components/CatalogHeader";
 import CategoryPanel from "./components/CategoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
-
+import useKeyboardNavigation from "./hooks/useKeyboardNavigation";
 export default function App() {
 
 
