@@ -47,6 +47,7 @@ import HomeHeader from "./components/HomeHeader";
 import Dashboard2 from "./components/Dashboard2";
 import SearchScreen from "./components/SearchScreen";
 import CatalogHeader from "./components/CatalogHeader";
+import CategoryPanel from "./components/CategoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
 
 export default function App() {
@@ -1798,42 +1799,23 @@ else if (e.key === 'ArrowDown') {
             <div className="flex-1 flex overflow-hidden">
               
               {/* CATEGORIES COLUMN PANEL (Only for LIVE, MOVIES, SERIES tabs) */}
-              {[SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab) && activeCategoriesOfTab.length > 0 && (
-                <div 
-                  ref={categoryContainerRef}
-                  className={`w-64 bg-[#0C0C0C]/50 border-r border-white/5 p-4 overflow-y-auto space-y-2 select-none shrink-0 scrollbar-none transition-all ${
-                    activeArea === 'categories' ? 'shadow-[8px_0_20px_rgba(0,0,0,0.4)] bg-[#0C0C0C]' : ''
-                  }`}
-                >
-                  <p className="text-[9px] text-white/30 font-bold font-mono uppercase tracking-widest pl-3 pb-2 border-b border-white/5">Categorías</p>
-                  
-                  {activeCategoriesOfTab.map((cat, idx) => {
-                     const isCatFocused = activeArea === 'categories' && categoryFocusedIndex === idx;
-                     const isCatActive = selectedCategory === cat.id;
+              {[SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab) &&
+  activeCategoriesOfTab.length > 0 && (
 
-                     return (
-                       <button
-                         key={cat.id}
-                         onClick={() => {
-                           setSelectedCategory(cat.id);
-                           setCategoryFocusedIndex(idx);
-                           setActiveArea('grid');
-                         }}
-                         className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all duration-200 outline-none flex items-center justify-between border ${
-                           isCatFocused
-                             ? 'bg-[#0066FF] text-white border-transparent shadow-[0_0_15px_rgba(0,102,255,0.3)] scale-105 font-extrabold'
-                             : isCatActive
-                             ? 'bg-white/5 text-[#0066FF] border-white/5'
-                             : 'text-white/40 hover:text-white border-transparent hover:bg-white/5'
-                         }`}
-                       >
-                         <span className={`truncate ${settings.fontSize === 'large' ? 'text-base' : 'text-xs'}`}>{cat.name}</span>
-                         <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${isCatFocused ? 'translate-x-1' : ''}`} />
-                       </button>
-                     );
-                  })}
-                </div>
-              )}
+  <CategoryPanel
+    categories={activeCategoriesOfTab}
+    activeArea={activeArea}
+    categoryFocusedIndex={categoryFocusedIndex}
+    selectedCategory={selectedCategory}
+    fontSize={settings.fontSize}
+    onSelect={(id, index) => {
+      setSelectedCategory(id);
+      setCategoryFocusedIndex(index);
+      setActiveArea("grid");
+    }}
+  />
+
+)}
 
               {/* RIGHT CONTENT DISPLAY PANEL */}
               
