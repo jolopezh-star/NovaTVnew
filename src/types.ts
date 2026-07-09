@@ -3,6 +3,7 @@ export enum AppSection {
   LoginXtream = 'LOGIN_XTREAM',
   LoginM3u = 'LOGIN_M3U',
   Main = 'MAIN',
+  Search = 'SEARCH',
   Player = 'PLAYER',
   Settings = 'SETTINGS',
   Dashboard = 'DASHBOARD',

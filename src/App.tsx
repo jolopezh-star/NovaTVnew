@@ -45,6 +45,7 @@ import {
 } from "./searchEngine";
 import HomeHeader from "./components/HomeHeader";
 import Dashboard2 from "./components/Dashboard2";
+import SearchScreen from "./components/SearchScreen";
 
 export default function App() {
 
@@ -64,6 +65,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchIndex, setSearchIndex] = useState<SearchIndexItem[]>([]);
   const [searchResults, setSearchResults] = useState<IPTVItem[]>([]);
+  const [searchFocusedIndex, setSearchFocusedIndex] = useState(0);
   
   // --- USER PROGRESS & PREFERENCES ---
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -138,7 +140,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   // --- DYNAMIC REF FOR GRID CONTAINER SCROLL ---
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const categoryContainerRef = useRef<HTMLDivElement>(null);
-
+  const searchInputRef = useRef<HTMLInputElement>(null);
   // --- INITIAL LOAD & SYNC ---
   useEffect(() => {
     // Load local storage states
@@ -200,6 +202,17 @@ useEffect(() => {
   );
 
 }, [searchQuery, searchIndex]);
+useEffect(() => {
+
+  if (
+    section === AppSection.Main &&
+    activeTab === SidebarTab.Search &&
+    activeArea === "grid"
+  ) {
+    searchInputRef.current?.focus();
+  }
+
+}, [section, activeTab, activeArea]);
   
  useEffect(() => {
 
@@ -836,9 +849,16 @@ localStorage.removeItem('webos_settings');
       const target = e.target as HTMLElement;
 
 if (
-  target.tagName === 'INPUT' ||
-  target.tagName === 'TEXTAREA'
+  target.tagName === "INPUT" ||
+  target.tagName === "TEXTAREA"
 ) {
+  if (
+    activeTab === SidebarTab.Search &&
+    section === AppSection.Main
+  ) {
+    return;
+  }
+
   return;
 }
 
@@ -1081,7 +1101,11 @@ else if (section === AppSection.Dashboard) {
               SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series, 
               SidebarTab.Favorites, SidebarTab.Recents, SidebarTab.Search, SidebarTab.SettingsTab
             ];
-            setActiveTab(tabs[nextIdx]);
+            const nextTab = tabs[nextIdx];
+
+setActiveTab(nextTab);
+
+setSection(AppSection.Main);
           } else if (e.key === 'ArrowUp') {
             const prevIdx = (sidebarFocusedIndex - 1 + 7) % 7;
             setSidebarFocusedIndex(prevIdx);
@@ -1089,7 +1113,11 @@ else if (section === AppSection.Dashboard) {
               SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series, 
               SidebarTab.Favorites, SidebarTab.Recents, SidebarTab.Search, SidebarTab.SettingsTab
             ];
-            setActiveTab(tabs[prevIdx]);
+            const prevTab = tabs[prevIdx];
+
+setActiveTab(prevTab);
+
+setSection(AppSection.Main);
           } else if (e.key === 'ArrowRight') {
             // Move to Categories list if TV, Movies, or Series. Otherwise move to Grid.
             const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab);
@@ -1698,6 +1726,7 @@ else if (e.key === 'ArrowDown') {
       )}
 
       {/* 4. --- MAIN IPTV CATEGORIES & STREAMS CATALOG SCREEN --- */}
+      
       {section === AppSection.Main && (
         
         <div className="min-h-screen flex bg-[#050505]">
@@ -1708,10 +1737,21 @@ else if (e.key === 'ArrowDown') {
             focusedIndex={sidebarFocusedIndex}
             activeArea={activeArea}
             onSelectTab={(tab) => {
+
   setShowCategoryManager(false);
   setActiveTab(tab);
-  setActiveArea('grid');
+
+  if (tab === SidebarTab.Search) {
+    setSearchQuery("");
+    setSearchResults([]);
+    setActiveArea("grid");
+    setGridFocusedIndex(0);
+    return;
+}
+
+  setActiveArea("grid");
   setGridFocusedIndex(0);
+
 }}
             fontSize={settings.fontSize}
           />
@@ -1760,7 +1800,8 @@ else if (e.key === 'ArrowDown') {
             <div className="px-8 py-4 border-b border-white/5 bg-[#080808]">
 
   <input
-    type="text"
+  ref={searchInputRef}
+  type="text"
     value={searchQuery}
     onChange={(e) => setSearchQuery(e.target.value)}
     placeholder="Buscar..."
@@ -1772,12 +1813,16 @@ else if (e.key === 'ArrowDown') {
   </div>
 <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
 
-  {searchResults.map((item) => (
+  {searchResults.map((item, index) => (
 
-    <div
-      key={item.id}
-      className="flex items-center gap-3 bg-[#111] rounded-lg px-3 py-2"
-    >
+  <div
+    key={item.id}
+    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+      searchFocusedIndex === index
+        ? "bg-[#0066FF] ring-2 ring-white"
+        : "bg-[#111]"
+    }`}
+  >
 
       <img
         src={item.logo}
