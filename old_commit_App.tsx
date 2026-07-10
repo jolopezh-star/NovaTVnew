@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+﻿import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Tv, Film, Play, Heart, Clock, Search, Settings, 
   Lock, Unlock, LogOut, Check, Sliders, ChevronRight, 
@@ -46,9 +46,7 @@ import {
 import HomeHeader from "./components/HomeHeader";
 import Dashboard2 from "./components/Dashboard2";
 import SearchScreen from "./components/SearchScreen";
-import CatalogHeader from "./components/CatalogHeader";
-import CategoryPanel from "./components/CategoryPanel";
-import SettingsPanel from "./components/SettingsPanel";
+
 export default function App() {
 
 
@@ -393,8 +391,8 @@ const continueWatching = useMemo(() => {
   "sex",
   "erotic",
   "erotica",
-  "erótico",
-  "erótica",
+  "er├│tico",
+  "er├│tica",
   "hentai",
   "18+",
   "+18"
@@ -426,7 +424,7 @@ const allCategories = useMemo(() => {
     try {
       
       const result = await testXtreamConnection(creds);
-      console.log("Resultado conexión:", result);
+      console.log("Resultado conexi├│n:", result);
 
 if (result.success) {
         storage.saveCredentials(creds);
@@ -477,7 +475,7 @@ setActiveArea('sidebar');
   }
 }
     } catch (e) {
-  console.error("Error después del login:", e);
+  console.error("Error despu├®s del login:", e);
   setErrorMessage('Error al conectar con el servidor Xtream Codes.');
 } finally {
       setIsLoading(false);
@@ -502,14 +500,14 @@ setActiveArea('sidebar');
       }
 
       if (!content.startsWith('#EXTM3U')) {
-        setErrorMessage('Formato M3U inválido. Debe comenzar con #EXTM3U');
+        setErrorMessage('Formato M3U inv├ílido. Debe comenzar con #EXTM3U');
         setIsLoading(false);
         return;
       }
 
       const parsed = parseM3U(content);
       if (parsed.items.length === 0) {
-        setErrorMessage('No se encontraron canales válidos en el archivo M3U.');
+        setErrorMessage('No se encontraron canales v├ílidos en el archivo M3U.');
         setIsLoading(false);
         return;
       }
@@ -529,7 +527,7 @@ setDashboardColumnIndex(0);
 setDashboardItemIndex(0);
 setActiveArea('sidebar');
     } catch (e) {
-      setErrorMessage('Ocurrió un error al procesar la lista M3U.');
+      setErrorMessage('Ocurri├│ un error al procesar la lista M3U.');
     } finally {
       setIsLoading(false);
     }
@@ -632,7 +630,7 @@ const img = new Image();
 
     if (
       confirm(
-        "¿Estás seguro de que deseas restablecer la aplicación? Se borrarán tus listas, favoritos e historial."
+        "┬┐Est├ís seguro de que deseas restablecer la aplicaci├│n? Se borrar├ín tus listas, favoritos e historial."
       )
     ) {
       clearCacheAndReset();
@@ -674,7 +672,7 @@ const handleChangePin = () => {
   }
 
   if (!/^\d{4}$/.test(newPinInput)) {
-    setChangePinError("El nuevo PIN debe tener 4 dígitos.");
+    setChangePinError("El nuevo PIN debe tener 4 d├¡gitos.");
     return;
   }
 
@@ -787,8 +785,8 @@ useEffect(() => {
   "18+",
   "erotic",
   "erotica",
-  "erótico",
-  "erótica",
+  "er├│tico",
+  "er├│tica",
   "hentai"
 ];
 
@@ -1172,7 +1170,6 @@ setSection(AppSection.Main);
 
         // C. MAIN GRID VIEW AREA (Channels, Posters, Settings)
         else if (activeArea === 'grid') {
-          console.log("GRID", activeTab, activeArea, e.key);
           
           // SERIES DETAIL MODAL SPATIAL ENGINE
           if (activeSeriesDetail) {
@@ -1334,38 +1331,14 @@ setSection(AppSection.Main);
               }
             }
           } else if (e.key === 'ArrowDown') {
-
-  if (activeTab === SidebarTab.Search) {
-
-    if (searchFocusedIndex < searchResults.length - 1) {
-      setSearchFocusedIndex(prev => prev + 1);
-    }
-
-  } else {
-
-    if (gridFocusedIndex + cols < filteredItems.length) {
-      setGridFocusedIndex(prev => prev + cols);
-    }
-
-  }
-
-} else if (e.key === 'ArrowUp') {
-
-  if (activeTab === SidebarTab.Search) {
-
-    if (searchFocusedIndex > 0) {
-      setSearchFocusedIndex(prev => prev - 1);
-    }
-
-  } else {
-
-    if (gridFocusedIndex - cols >= 0) {
-      setGridFocusedIndex(prev => prev - cols);
-    }
-
-  }
-
-} else if (e.key === 'Backspace' || e.key === 'Escape') {
+            if (gridFocusedIndex + cols < filteredItems.length) {
+              setGridFocusedIndex(prev => prev + cols);
+            }
+          } else if (e.key === 'ArrowUp') {
+            if (gridFocusedIndex - cols >= 0) {
+              setGridFocusedIndex(prev => prev - cols);
+            }
+          } else if (e.key === 'Backspace' || e.key === 'Escape') {
             const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab);
             if (hasCategories) setActiveArea('categories');
             else setActiveArea('sidebar');
@@ -1507,7 +1480,7 @@ else if (e.key === 'ArrowDown') {
       Nova<span className="text-[#0066FF]">TV</span>
     </>
   }
-  subtitle="Simple. Rápido. Elegante."
+  subtitle="Simple. R├ípido. Elegante."
 />
 
           {/* Core Navigation Options Panel */}
@@ -1528,7 +1501,7 @@ else if (e.key === 'ArrowDown') {
               </div>
               <div className="text-left">
                 <span className="block text-sm">Conectar Xtream Codes</span>
-                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 0 ? 'text-white/70' : 'text-white/30'}`}>Accede con tu usuario y contraseña</span>
+                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 0 ? 'text-white/70' : 'text-white/30'}`}>Accede con tu usuario y contrase├▒a</span>
               </div>
             </button>
 
@@ -1547,7 +1520,7 @@ else if (e.key === 'ArrowDown') {
               </div>
               <div className="text-left">
                 <span className="block text-sm">Cargar Lista M3U</span>
-                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 1 ? 'text-white/70' : 'text-white/30'}`}>Cargar vía URL o pegar texto plano</span>
+                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 1 ? 'text-white/70' : 'text-white/30'}`}>Cargar v├¡a URL o pegar texto plano</span>
               </div>
             </button>
 
@@ -1566,7 +1539,7 @@ else if (e.key === 'ArrowDown') {
               </div>
               <div className="text-left">
                 <span className="block text-sm">Modo Demo</span>
-                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 2 ? 'text-white/70' : 'text-white/30'}`}>Explora NovaTV sin iniciar sesión</span>
+                <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 2 ? 'text-white/70' : 'text-white/30'}`}>Explora NovaTV sin iniciar sesi├│n</span>
               </div>
             </button>
 
@@ -1584,7 +1557,7 @@ else if (e.key === 'ArrowDown') {
                 <Settings className="w-5 h-5 text-inherit" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Configuración</span>
+                <span className="block text-sm">Configuraci├│n</span>
                 <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 3 ? 'text-white/70' : 'text-white/30'}`}>Ajustes visuales y de red del reproductor</span>
               </div>
             </button>
@@ -1593,8 +1566,8 @@ else if (e.key === 'ArrowDown') {
 
           {/* Quick instructions indicator */}
           <div className="absolute bottom-8 left-8 right-8 text-[10px] text-white/30 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono uppercase tracking-widest">
-            <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">▲ ▼</span> Mover foco</span>
-            <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">OK / Enter</span> Confirmar acción</span>
+            <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">Ôû▓ Ôû╝</span> Mover foco</span>
+            <span className="flex items-center gap-1.5"><span className="bg-[#0C0C0C] border border-white/5 px-2 py-0.5 rounded font-mono">OK / Enter</span> Confirmar acci├│n</span>
           </div>
 
         </div>
@@ -1641,25 +1614,25 @@ else if (e.key === 'ArrowDown') {
 
   {featuredItem?.year && (
     <span className="px-3 py-1 rounded-full bg-white/10">
-      📅 {featuredItem.year}
+      ­ƒôà {featuredItem.year}
     </span>
   )}
 
   {featuredItem?.genre && (
     <span className="px-3 py-1 rounded-full bg-white/10">
-      🎭 {featuredItem.genre}
+      ­ƒÄ¡ {featuredItem.genre}
     </span>
   )}
 
   {featuredItem?.rating && (
     <span className="px-3 py-1 rounded-full bg-[#FFD54A] text-black font-bold">
-      ⭐ {featuredItem.rating}
+      Ô¡É {featuredItem.rating}
     </span>
   )}
 
   {featuredItem?.duration && (
     <span className="px-3 py-1 rounded-full bg-white/10">
-      ⏱ {featuredItem.duration}
+      ÔÅ▒ {featuredItem.duration}
     </span>
   )}
 
@@ -1689,7 +1662,7 @@ else if (e.key === 'ArrowDown') {
     : "bg-[#0066FF] hover:bg-[#0050cc]"
 }`}
   >
-    ▶ Reproducir
+    ÔûÂ Reproducir
   </button>
 
   <button
@@ -1700,7 +1673,7 @@ else if (e.key === 'ArrowDown') {
       : "bg-white/10 hover:bg-white/20"
   }`}
 >
-  Explorar catálogo
+  Explorar cat├ílogo
 </button>
 
 </div>
@@ -1787,37 +1760,137 @@ else if (e.key === 'ArrowDown') {
           <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#050505]">
             
             {/* Catalog Top Status Banner */}
-            <CatalogHeader
-  activeTab={activeTab}
-  isDemoMode={isDemoMode}
-  onGoHome={() => setSection(AppSection.Dashboard)}
-/>
-           
+            <div className="h-20 px-8 border-b border-white/5 bg-[#0C0C0C] flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-display font-extrabold text-white tracking-tight flex items-center gap-2 uppercase">
+                  {activeTab === SidebarTab.Live && 'Televisi├│n En Vivo'}
+                  {activeTab === SidebarTab.Movies && 'Pel├¡culas VOD'}
+                  {activeTab === SidebarTab.Series && 'Series de Televisi├│n'}
+                  {activeTab === SidebarTab.Favorites && 'Mis Favoritos'}
+                  {activeTab === SidebarTab.Recents && 'Historial Reciente'}
+                  {activeTab === SidebarTab.Search && 'Buscador Global'}
+                  {activeTab === SidebarTab.SettingsTab && 'Ajustes de webOS'}
+                  {isDemoMode && (
+                    <span className="text-[9px] bg-white/5 border border-white/10 text-white/60 font-mono font-bold px-2 py-0.5 rounded-md ml-2 tracking-widest">
+                      DEMO MODE
+                    </span>
+                  )}
+                </h2>
+
+              </div>
+              <button
+  onClick={() => setSection(AppSection.Dashboard)}
+  className="px-5 py-2 rounded-lg bg-red-600 text-white font-bold z-50"
+>
+  INICIO
+</button>
+
+              {/* Red/Green interactive color keys shortcuts */}
+              <div className="flex items-center gap-6 text-[10px] text-white/30 font-mono uppercase tracking-widest">
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse shrink-0" />
+                  <span className="font-medium">R: Favorito r├ípido</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] shrink-0" />
+                  <span className="font-medium">G: Abrir buscador</span>
+                </span>
+              </div>
+            </div>
+            <div className="px-8 py-4 border-b border-white/5 bg-[#080808]">
+
+  <input
+  ref={searchInputRef}
+  type="text"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    placeholder="Buscar..."
+    className="w-full max-w-xl rounded-xl bg-[#111] border border-white/10 px-5 py-3 text-white"
+  />
+
+  <div className="mt-3 text-xs text-white/50">
+    Resultados encontrados: {searchResults.length}
+  </div>
+<div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+
+  {searchResults.map((item, index) => (
+
+  <div
+    key={item.id}
+    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+      searchFocusedIndex === index
+        ? "bg-[#0066FF] ring-2 ring-white"
+        : "bg-[#111]"
+    }`}
+  >
+
+      <img
+        src={item.logo}
+        alt={item.name}
+        className="w-12 h-16 object-cover rounded"
+      />
+
+      <div>
+
+        <div className="font-semibold">
+          {item.name}
+        </div>
+
+        <div className="text-xs text-white/50">
+          {item.type} {item.year ? `ÔÇó ${item.year}` : ""}
+        </div>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+</div>
 
             {/* Catalog content panel split (Left panel Categories, Right panel stream tiles) */}
             <div className="flex-1 flex overflow-hidden">
               
               {/* CATEGORIES COLUMN PANEL (Only for LIVE, MOVIES, SERIES tabs) */}
-              {[SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab) &&
-  activeCategoriesOfTab.length > 0 && (
+              {[SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab) && activeCategoriesOfTab.length > 0 && (
+                <div 
+                  ref={categoryContainerRef}
+                  className={`w-64 bg-[#0C0C0C]/50 border-r border-white/5 p-4 overflow-y-auto space-y-2 select-none shrink-0 scrollbar-none transition-all ${
+                    activeArea === 'categories' ? 'shadow-[8px_0_20px_rgba(0,0,0,0.4)] bg-[#0C0C0C]' : ''
+                  }`}
+                >
+                  <p className="text-[9px] text-white/30 font-bold font-mono uppercase tracking-widest pl-3 pb-2 border-b border-white/5">Categor├¡as</p>
+                  
+                  {activeCategoriesOfTab.map((cat, idx) => {
+                     const isCatFocused = activeArea === 'categories' && categoryFocusedIndex === idx;
+                     const isCatActive = selectedCategory === cat.id;
 
-  <CategoryPanel
-    categories={activeCategoriesOfTab}
-    activeArea={activeArea}
-    categoryFocusedIndex={categoryFocusedIndex}
-    selectedCategory={selectedCategory}
-    fontSize={settings.fontSize}
-    onSelect={(id, index) => {
-      setSelectedCategory(id);
-      setCategoryFocusedIndex(index);
-      setActiveArea("grid");
-    }}
-  />
-
-)}
+                     return (
+                       <button
+                         key={cat.id}
+                         onClick={() => {
+                           setSelectedCategory(cat.id);
+                           setCategoryFocusedIndex(idx);
+                           setActiveArea('grid');
+                         }}
+                         className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all duration-200 outline-none flex items-center justify-between border ${
+                           isCatFocused
+                             ? 'bg-[#0066FF] text-white border-transparent shadow-[0_0_15px_rgba(0,102,255,0.3)] scale-105 font-extrabold'
+                             : isCatActive
+                             ? 'bg-white/5 text-[#0066FF] border-white/5'
+                             : 'text-white/40 hover:text-white border-transparent hover:bg-white/5'
+                         }`}
+                       >
+                         <span className={`truncate ${settings.fontSize === 'large' ? 'text-base' : 'text-xs'}`}>{cat.name}</span>
+                         <ChevronRight className={`w-3.5 h-3.5 shrink-0 transition-transform ${isCatFocused ? 'translate-x-1' : ''}`} />
+                       </button>
+                     );
+                  })}
+                </div>
+              )}
 
               {/* RIGHT CONTENT DISPLAY PANEL */}
-              
               <div className="flex-1 flex flex-col overflow-hidden p-6">
                 
                 {/* A. If we are in Settings Tab */}
@@ -1843,10 +1916,10 @@ else if (e.key === 'ArrowDown') {
                       >
                         <div>
                           <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Idioma de la Interfaz</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">Español / Inglés para navegación rápida.</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">Espa├▒ol / Ingl├®s para navegaci├│n r├ípida.</p>
                         </div>
                         <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[10px] rounded-lg uppercase">
-                          {settings.language === 'es' ? 'Español (ES)' : 'English (EN)'}
+                          {settings.language === 'es' ? 'Espa├▒ol (ES)' : 'English (EN)'}
                         </span>
                       </div>
 
@@ -1857,14 +1930,13 @@ else if (e.key === 'ArrowDown') {
                         }`}
                       >
                         <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Tamaño de Fuente</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">Ajusta el tamaño del texto para televisores 4K.</p>
+                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Tama├▒o de Fuente</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">Ajusta el tama├▒o del texto para televisores 4K.</p>
                         </div>
                         <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[10px] rounded-lg uppercase">
                           {settings.fontSize === 'normal' ? 'Normal' : settings.fontSize === 'large' ? 'Grande' : 'Muy Grande'}
                         </span>
                       </div>
-                      
 
                       
 
@@ -1917,10 +1989,10 @@ else if (e.key === 'ArrowDown') {
 >
   <div>
     <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-      Administrador de Categorías
+      Administrador de Categor├¡as
     </p>
     <p className="text-[10px] text-white/40 mt-0.5">
-      Oculta o muestra categorías.
+      Oculta o muestra categor├¡as.
     </p>
   </div>
   <EyeOff className="w-5 h-5 text-[#0066FF]" />
@@ -1936,7 +2008,7 @@ else if (e.key === 'ArrowDown') {
 >
   <div>
     <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-500">
-      Limpiar Caché y Restablecer
+      Limpiar Cach├® y Restablecer
     </p>
     <p className="text-[10px] text-white/40 mt-0.5">
       Borra credenciales, listas, favoritos y reinicia.
@@ -1961,7 +2033,7 @@ else if (e.key === 'ArrowDown') {
 
                   <div className="max-w-3xl mx-auto w-full bg-[#0C0C0C] border border-white/5 rounded-3xl p-8">
                     <h2 className="text-2xl font-bold mb-6">
-                      Administrador de categorías
+                      Administrador de categor├¡as
                     </h2>
                     <div className="flex justify-end mb-5">
   <button
@@ -2019,61 +2091,23 @@ else if (e.key === 'ArrowDown') {
                   // B. If we are in SEARCH TAB, display search box
                   <>
                     {activeTab === SidebarTab.Search && (
-  <div className="mb-6 max-w-lg">
-    <p className="text-white/30 text-[10px] font-mono font-bold uppercase tracking-widest mb-2">
-      Ingresa tu consulta
-    </p>
-
-    <div className="relative">
-      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
-        <Search className="w-5 h-5" />
-      </span>
-
-      <input
-        ref={searchInputRef}
-        type="text"
-        placeholder="Buscar canal, película o serie..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full bg-[#0C0C0C] border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0066FF] focus:shadow-[0_0_15px_rgba(0,102,255,0.2)]"
-      />
-    </div>
-
-    <div className="mt-3 text-xs text-white/50">
-      Resultados encontrados: {searchResults.length}
-    </div>
-
-    <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-      {searchResults.map((item, index) => (
-        <div
-          key={item.id}
-          className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-            searchFocusedIndex === index
-              ? "bg-[#0066FF] ring-2 ring-white"
-              : "bg-[#111]"
-          }`}
-        >
-          <img
-            src={item.logo}
-            alt={item.name}
-            className="w-12 h-16 object-cover rounded"
-          />
-
-          <div>
-            <div className="font-semibold">
-              {item.name}
-            </div>
-
-            <div className="text-xs text-white/50">
-              {item.type} {item.year ? `• ${item.year}` : ""}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-    
-  </div>
-)}
+                      <div className="mb-6 max-w-lg">
+                        <p className="text-white/30 text-[10px] font-mono font-bold uppercase tracking-widest mb-2">Ingresa tu consulta</p>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+                            <Search className="w-5 h-5" />
+                          </span>
+                          <input
+                            type="text"
+                            placeholder="Buscar canal, pel├¡cula o serie..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-[#0C0C0C] border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#0066FF] focus:shadow-[0_0_15px_rgba(0,102,255,0.2)]"
+                          />
+                        </div>
+                        
+                      </div>
+                    )}
 
                     {/* LIVE TV EXTRA: EPG TV Guide & Live Stream Detail Block split */}
                     {activeTab === SidebarTab.Live && filteredItems.length > 0 && (
@@ -2124,7 +2158,7 @@ else if (e.key === 'ArrowDown') {
                                   <span className={`text-[10px] block truncate font-mono uppercase tracking-wider mt-1 ${
                                     isGridFocused ? 'text-white/60' : 'text-white/30'
                                   }`}>
-                                    {generateEPG(item.id)[0]?.title || 'Emisión continua'}
+                                    {generateEPG(item.id)[0]?.title || 'Emisi├│n continua'}
                                   </span>
                                 </div>
                               </button>
@@ -2164,7 +2198,7 @@ else if (e.key === 'ArrowDown') {
                                     {/* Information text */}
                                     <h3 className="text-base font-display font-extrabold text-white leading-tight uppercase tracking-tight truncate">{focusedChannel.name}</h3>
                                     <p className="text-white/30 text-[9px] font-mono font-bold uppercase tracking-widest mt-0.5">
-  Guía en tiempo real
+  Gu├¡a en tiempo real
 </p>
 
                                     {/* Timeline Programs Checklist */}
@@ -2202,7 +2236,7 @@ else if (e.key === 'ArrowDown') {
                                       {/* EPG 1: SIGUIENTE */}
                                       <div className="p-3 bg-[#141414]/30 border-l-4 border-white/5 rounded-r-xl border-y border-r border-white/5">
                                         <div className="flex items-center justify-between text-[9px] font-mono font-bold text-white/30 uppercase tracking-widest">
-                                          <span>A continuación</span>
+                                          <span>A continuaci├│n</span>
                                          <span>
   {currentEPG[1]
     ? `${formatEPGTime(currentEPG[1].start)} - ${formatEPGTime(currentEPG[1].end)}`
@@ -2220,7 +2254,7 @@ else if (e.key === 'ArrowDown') {
                                       {/* EPG 2: SIGUIENTE 2 */}
                                       <div className="p-3 bg-[#141414]/30 border-l-4 border-white/5 rounded-r-xl border-y border-r border-white/5">
                                         <div className="flex items-center justify-between text-[9px] font-mono font-bold text-white/30 uppercase tracking-widest">
-                                          <span>Más tarde</span>
+                                          <span>M├ís tarde</span>
                                           <span>
   {currentEPG[2]
     ? `${formatEPGTime(currentEPG[2].start)} - ${formatEPGTime(currentEPG[2].end)}`
@@ -2252,7 +2286,7 @@ else if (e.key === 'ArrowDown') {
                           ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-white/20">
                               <BookOpen className="w-12 h-12 stroke-1 mb-4" />
-                              <p className="text-xs font-semibold">Selecciona un canal para consultar su guía de programación satelital.</p>
+                              <p className="text-xs font-semibold">Selecciona un canal para consultar su gu├¡a de programaci├│n satelital.</p>
                             </div>
                           )}
                         </div>
@@ -2261,8 +2295,7 @@ else if (e.key === 'ArrowDown') {
                     )}
 
                     {/* VOD MOVIES & SERIES LAYOUT GRIDS (4 columns) */}
-                    {activeTab !== SidebarTab.Live &&
-                     activeTab !== SidebarTab.Search && (
+                    {activeTab !== SidebarTab.Live && (
                       <div className="flex flex-col h-full overflow-hidden">
                         
                         {/* Dynamic Top Focused Item Summary Banner */}
@@ -2282,20 +2315,20 @@ else if (e.key === 'ArrowDown') {
                               <div className="flex items-center gap-3">
                                 <h3 className="text-lg font-display font-bold text-white uppercase tracking-tight truncate leading-tight">{filteredItems[gridFocusedIndex].name}</h3>
                                 <span className="bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
-                                  ★ {filteredItems[gridFocusedIndex].rating || '8.5'}
+                                  Ôÿà {filteredItems[gridFocusedIndex].rating || '8.5'}
                                 </span>
                                 {filteredItems[gridFocusedIndex].year && (
                                   <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest font-semibold">{filteredItems[gridFocusedIndex].year}</span>
                                 )}
                               </div>
                               <p className="text-xs text-white/50 mt-1 line-clamp-2 leading-relaxed max-w-2xl">
-                                {filteredItems[gridFocusedIndex].description || 'Ver transmisión VOD en alta definición con reproducción fluida e inicio instantáneo, compatible con tu reproductor webOS.'}
+                                {filteredItems[gridFocusedIndex].description || 'Ver transmisi├│n VOD en alta definici├│n con reproducci├│n fluida e inicio instant├íneo, compatible con tu reproductor webOS.'}
                               </p>
                               
                               {/* Metadata tags */}
                               <div className="flex gap-4 items-center mt-2.5 text-[9px] font-mono text-white/30 uppercase tracking-widest">
-                                {filteredItems[gridFocusedIndex].genre && <span>Género: {filteredItems[gridFocusedIndex].genre}</span>}
-                                {filteredItems[gridFocusedIndex].duration && <span>Duración: {filteredItems[gridFocusedIndex].duration}</span>}
+                                {filteredItems[gridFocusedIndex].genre && <span>G├®nero: {filteredItems[gridFocusedIndex].genre}</span>}
+                                {filteredItems[gridFocusedIndex].duration && <span>Duraci├│n: {filteredItems[gridFocusedIndex].duration}</span>}
                               </div>
                             </div>
                           </div>
@@ -2422,7 +2455,7 @@ const isCompletedSeries =
                                     
                                     <div className="flex justify-between items-center text-[9px] font-mono text-white/30 font-semibold border-t border-white/5 pt-2.5 mt-2.5">
                                       <span>{item.year || '2023'}</span>
-                                      <span>★ {item.rating || '8.5'}</span>
+                                      <span>Ôÿà {item.rating || '8.5'}</span>
                                     </div>
                                   </div>
 
@@ -2434,7 +2467,7 @@ const isCompletedSeries =
                           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-zinc-500">
                             <Film className="w-16 h-16 stroke-1 mb-4" />
                             <h4 className="text-base font-bold text-zinc-400">Sin Contenido</h4>
-                            <p className="text-xs mt-1 max-w-sm">No se encontraron películas o series cargadas en esta categoría.</p>
+                            <p className="text-xs mt-1 max-w-sm">No se encontraron pel├¡culas o series cargadas en esta categor├¡a.</p>
                           </div>
                         )}
 
@@ -2462,7 +2495,7 @@ const isCompletedSeries =
                                   : 'bg-[#141414] text-white/40 border-white/5 hover:text-white'
                               }`}
                             >
-                              Volver al Menú (BACK)
+                              Volver al Men├║ (BACK)
                             </button>
                           </div>
 
@@ -2482,7 +2515,7 @@ const isCompletedSeries =
                                 </div>
                                 <div className="flex gap-2 items-center mt-4 text-[9px] font-mono text-white/30 uppercase tracking-widest font-semibold">
                                   <span>{activeSeriesDetail.year}</span>
-                                  <span>•</span>
+                                  <span>ÔÇó</span>
                                   <span>{activeSeriesDetail.genre}</span>
                                 </div>
                                 <p className="text-xs text-white/50 mt-2 leading-relaxed line-clamp-4">
@@ -2595,11 +2628,11 @@ const isInProgress =
 
   <span className="text-white/30 text-[9px] font-mono uppercase tracking-widest shrink-0 ml-3">
   {episode.duration}
-  {progressEp && ` • ${progressEp.percentage}%`}
+  {progressEp && ` ÔÇó ${progressEp.percentage}%`}
 </span>
 </div>
                                         <p className="text-[10px] text-white/40 truncate mt-1 leading-normal">
-                                          {episode.description || 'Disfruta de este episodio de alta definición optimizado con reproducción instantánea.'}
+                                          {episode.description || 'Disfruta de este episodio de alta definici├│n optimizado con reproducci├│n instant├ínea.'}
                                         </p>
                                         
                                         {/* Episode dynamic progress bar */}
