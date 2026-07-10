@@ -863,10 +863,21 @@ localStorage.removeItem('webos_settings');
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Prevent scrolling defaults on TV Arrow keys
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
-        e.preventDefault();
-      }
       const target = e.target as HTMLElement;
+
+const isSearchInput =
+  (target.tagName === "INPUT" || target.tagName === "TEXTAREA") &&
+  activeTab === SidebarTab.Search &&
+  section === AppSection.Main;
+
+// Prevent scrolling defaults on TV Arrow keys
+if (
+  ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(e.key) &&
+  !(isSearchInput && e.key === ' ')
+) {
+  e.preventDefault();
+}
+    
 
 if (
   target.tagName === "INPUT" ||
@@ -882,6 +893,7 @@ if (
     if (
       e.key === "ArrowUp" ||
       e.key === "ArrowDown" ||
+      e.key === "ArrowLeft" ||
       e.key === "Enter" ||
       e.key === "Escape"
     ) {
@@ -1402,16 +1414,23 @@ setSection(AppSection.Main);
             if (hasCategories) setActiveArea('categories');
             else setActiveArea('sidebar');
           } else if (e.key === 'Enter') {
-            const focusedItem = filteredItems[gridFocusedIndex];
-            if (focusedItem) {
-              
-              if (focusedItem.type === 'series') {
-                openSeriesDetail(focusedItem);
-              } else {
-                triggerPlay(focusedItem);
-              }
-            }
-          }
+
+  const focusedItem =
+    activeTab === SidebarTab.Search
+      ? searchResults[searchFocusedIndex]
+      : filteredItems[gridFocusedIndex];
+
+  if (focusedItem) {
+
+    if (focusedItem.type === 'series') {
+      openSeriesDetail(focusedItem);
+    } else {
+      triggerPlay(focusedItem);
+    }
+
+  }
+
+}
 
           // Color Keys (Teclas de colores del mando LG)
           if (e.key === 'r' || e.key === 'KeyR' || e.key.toLowerCase() === 'r') {
