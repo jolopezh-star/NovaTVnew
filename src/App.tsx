@@ -142,6 +142,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   // --- DYNAMIC REF FOR GRID CONTAINER SCROLL ---
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const categoryContainerRef = useRef<HTMLDivElement>(null);
+  const searchResultsRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   // --- INITIAL LOAD & SYNC ---
   useEffect(() => {
@@ -215,6 +216,23 @@ useEffect(() => {
   }
 
 }, [section, activeTab, activeArea]);
+useEffect(() => {
+  if (
+    activeTab !== SidebarTab.Search ||
+    !searchResultsRef.current
+  ) {
+    return;
+  }
+
+  const element = searchResultsRef.current.children[
+    searchFocusedIndex
+  ] as HTMLElement | undefined;
+
+  element?.scrollIntoView({
+    block: "nearest",
+    behavior: "smooth",
+  });
+}, [searchFocusedIndex, activeTab]);
   
  useEffect(() => {
 
@@ -854,14 +872,28 @@ if (
   target.tagName === "INPUT" ||
   target.tagName === "TEXTAREA"
 ) {
+
   if (
     activeTab === SidebarTab.Search &&
     section === AppSection.Main
   ) {
+
+    // Permitir que estas teclas sigan al handler global
+    if (
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "Enter" ||
+      e.key === "Escape"
+    ) {
+      // continuar
+    } else {
+      return;
+    }
+
+  } else {
     return;
   }
 
-  return;
 }
 
       // 1. --- HOME SECTION SPATIAL NAV ---
@@ -2043,7 +2075,10 @@ else if (e.key === 'ArrowDown') {
       Resultados encontrados: {searchResults.length}
     </div>
 
-    <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+    <div
+  ref={searchResultsRef}
+  className="mt-4 space-y-2 max-h-64 overflow-y-auto"
+>
       {searchResults.map((item, index) => (
         <div
           key={item.id}
