@@ -862,6 +862,7 @@ localStorage.removeItem('webos_settings');
   // --- SPATIAL KEYBOARD CONTROL MATRIX ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      
       // Prevent scrolling defaults on TV Arrow keys
       const target = e.target as HTMLElement;
 
@@ -876,6 +877,13 @@ if (
   !(isSearchInput && e.key === ' ')
 ) {
   e.preventDefault();
+}
+if (
+  section === AppSection.LoginXtream &&
+  e.key === "Backspace" &&
+  target.tagName === "INPUT"
+) {
+  return;
 }
     
 
@@ -902,9 +910,9 @@ if (
       return;
     }
 
-  } else {
+  } else if (section !== AppSection.LoginXtream) {
     return;
-  }
+}
 
 }
 
@@ -934,8 +942,8 @@ if (
         } else if (e.key === 'ArrowUp') {
           setLoginFieldIndex(prev => (prev - 1 + 6) % 6);
         } else if (e.key === 'Backspace' || e.key === 'Escape') {
-          setSection(AppSection.Home);
-        } else if (e.key === 'Enter') {
+  setSection(AppSection.Home);
+} else if (e.key === 'Enter') {
           if (loginFieldIndex === 3) handleXtreamLogin(xtreamCreds);
           else if (loginFieldIndex === 4) setSection(AppSection.Home);
           else if (loginFieldIndex === 5) loadDemoPlaylists();
