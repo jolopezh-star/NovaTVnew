@@ -1,0 +1,10 @@
+{
+  "id": "com.armahj.novatv",
+  "vendor": "armahj",
+  "type": "web",
+  "main": "index.html",
+  "title": "NovaTV",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "version": "1.0.0"
+}
