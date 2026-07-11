@@ -128,6 +128,7 @@ const [loadingEPG, setLoadingEPG] = useState(false);
   // --- FOCUS SPATIAL INDEXES ---
   const [homeIndex, setHomeIndex] = useState(0); // 0: Xtream, 1: M3U, 2: Demo, 3: Settings
   const [loginFieldIndex, setLoginFieldIndex] = useState(0); // For Xtream / M3u forms
+  const [changePinFocusIndex, setChangePinFocusIndex] = useState(0); // For ChangePIN dialog (0: currentPin, 1: newPin, 2: confirmPin, 3: save, 4: cancel)
   const [activeArea, setActiveArea] = useState<'sidebar' | 'categories' | 'grid'>('sidebar');
   const [sidebarFocusedIndex, setSidebarFocusedIndex] = useState(0);
   const [categoryFocusedIndex, setCategoryFocusedIndex] = useState(0);
@@ -886,6 +887,26 @@ if (
   return;
 }
     
+// CHANGE PIN DIALOG KEYBOARD NAVIGATION
+if (showChangePin) {
+  console.log("CHANGE PIN KEY", e.key);
+
+  if (e.key === 'ArrowDown') {
+    setChangePinFocusIndex(prev => (prev + 1) % 5);
+  } else if (e.key === 'ArrowUp') {
+    setChangePinFocusIndex(prev => (prev - 1 + 5) % 5);
+  } else if (e.key === 'Backspace' || e.key === 'Escape') {
+    setShowChangePin(false);
+    setChangePinFocusIndex(0);
+  } else if (e.key === 'Enter') {
+    if (changePinFocusIndex === 3) handleChangePin();
+    else if (changePinFocusIndex === 4) {
+      setShowChangePin(false);
+      setChangePinFocusIndex(0);
+    }
+  }
+  return;
+}
 
 if (
   target.tagName === "INPUT" ||
@@ -1232,6 +1253,8 @@ setSection(AppSection.Main);
           
           // SERIES DETAIL MODAL SPATIAL ENGINE
           if (activeSeriesDetail) {
+            
+
             const episodes = activeSeriesDetail.episodes?.filter(e => e.season === selectedSeason) || [];
             
             if (e.key === 'ArrowRight') {
@@ -1270,6 +1293,7 @@ setSection(AppSection.Main);
                 }
               }
             } else if (e.key === 'Enter') {
+              
               if (seriesModalFocusIndex === 1 && episodes[gridFocusedIndex]) {
                 triggerPlay(activeSeriesDetail, episodes[gridFocusedIndex].id);
               } else if (seriesModalFocusIndex === 2) {
@@ -1280,8 +1304,9 @@ setSection(AppSection.Main);
                   setFavorites([...favorites, activeSeriesDetail.id]);
                 }
               } else if (seriesModalFocusIndex === 3) {
-                setActiveSeriesDetail(null);
-              }
+    
+    setActiveSeriesDetail(null);
+}
             } else if (e.key === 'Backspace' || e.key === 'Escape') {
               setActiveSeriesDetail(null);
             }
@@ -1333,6 +1358,7 @@ setSection(AppSection.Main);
   setNewPinInput("");
   setConfirmPinInput("");
   setChangePinError("");
+  setChangePinFocusIndex(0);
   setShowChangePin(true);
 
 } else if (settingsIndex === 4) {
@@ -2716,6 +2742,7 @@ const isInProgress =
       )}
       {showChangePin && (
   <ChangePINDialog
+    focusIndex={changePinFocusIndex}
     currentPin={currentPinInput}
     newPin={newPinInput}
     confirmPin={confirmPinInput}
@@ -2724,7 +2751,10 @@ const isInProgress =
     setConfirmPin={setConfirmPinInput}
     error={changePinError}
     onSave={handleChangePin}
-    onClose={() => setShowChangePin(false)}
+    onClose={() => {
+      setShowChangePin(false);
+      setChangePinFocusIndex(0);
+    }}
   />
 )}
 
