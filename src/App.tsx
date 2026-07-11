@@ -1170,10 +1170,14 @@ setSection(AppSection.Main);
             if (hasCategories && activeCategoriesOfTab.length > 0) {
               setActiveArea('categories');
               setCategoryFocusedIndex(0);
-            } else {
+                        } else {
               setActiveArea('grid');
               setGridFocusedIndex(0);
             }
+
+          } else if (e.key === 'ArrowLeft') {
+            setSection(AppSection.Dashboard);
+
           } else if (e.key === 'Backspace' || e.key === 'Escape') {
             setSection(AppSection.Home);
           }
