@@ -86,6 +86,8 @@ const [parentalPinInput, setParentalPinInput] = useState("");
 const [parentalPinError, setParentalPinError] = useState(false);
 const [ignoreNextEnter, setIgnoreNextEnter] = useState(false);
 const [showChangePin, setShowChangePin] = useState(false);
+const [showExitDialog, setShowExitDialog] = useState(false);
+const [exitDialogIndex, setExitDialogIndex] = useState(0); // 0: Sí, 1: No
 const [currentPinInput, setCurrentPinInput] = useState("");
 const [newPinInput, setNewPinInput] = useState("");
 const [confirmPinInput, setConfirmPinInput] = useState("");
@@ -863,9 +865,20 @@ localStorage.removeItem('webos_settings');
   // --- SPATIAL KEYBOARD CONTROL MATRIX ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log(
+        "RAW KEY",
+        e.key,
+        e.code,
+        e.keyCode
+      );
       
       // Prevent scrolling defaults on TV Arrow keys
       const target = e.target as HTMLElement;
+
+      const isBackKey =
+        e.key === "Backspace" ||
+        e.key === "Escape" ||
+        e.keyCode === 461;
 
 const isSearchInput =
   (target.tagName === "INPUT" || target.tagName === "TEXTAREA") &&
@@ -887,6 +900,30 @@ if (
   return;
 }
     
+// EXIT DIALOG KEYBOARD NAVIGATION
+if (showExitDialog) {
+  if (e.key === 'ArrowLeft') {
+    setExitDialogIndex(0); // Sí
+  } else if (e.key === 'ArrowRight') {
+    setExitDialogIndex(1); // No
+  } else if (e.key === 'Enter') {
+    if (exitDialogIndex === 0) {
+      if ((window as any).webOSSystem?.quit) {
+        (window as any).webOSSystem.quit();
+      } else {
+        window.close();
+      }
+    } else {
+      setShowExitDialog(false);
+      setExitDialogIndex(0);
+    }
+  } else if (isBackKey) {
+    setShowExitDialog(false);
+    setExitDialogIndex(0);
+  }
+  return;
+}
+
 // CHANGE PIN DIALOG KEYBOARD NAVIGATION
 if (showChangePin) {
   console.log("CHANGE PIN KEY", e.key);
@@ -895,7 +932,7 @@ if (showChangePin) {
     setChangePinFocusIndex(prev => (prev + 1) % 5);
   } else if (e.key === 'ArrowUp') {
     setChangePinFocusIndex(prev => (prev - 1 + 5) % 5);
-  } else if (e.key === 'Backspace' || e.key === 'Escape') {
+  } else if (isBackKey) {
     setShowChangePin(false);
     setChangePinFocusIndex(0);
   } else if (e.key === 'Enter') {
@@ -953,6 +990,9 @@ if (
             setActiveArea('grid');
             setSettingsIndex(0);
           }
+        } else if (isBackKey) {
+          setExitDialogIndex(0);
+          setShowExitDialog(true);
         }
       }
 
@@ -962,7 +1002,7 @@ if (
           setLoginFieldIndex(prev => (prev + 1) % 6);
         } else if (e.key === 'ArrowUp') {
           setLoginFieldIndex(prev => (prev - 1 + 6) % 6);
-        } else if (e.key === 'Backspace' || e.key === 'Escape') {
+        } else if (isBackKey) {
   setSection(AppSection.Home);
 } else if (e.key === 'Enter') {
           if (loginFieldIndex === 3) handleXtreamLogin(xtreamCreds);
@@ -977,7 +1017,7 @@ if (
           setLoginFieldIndex(prev => (prev + 1) % 5);
         } else if (e.key === 'ArrowUp') {
           setLoginFieldIndex(prev => (prev - 1 + 5) % 5);
-        } else if (e.key === 'Backspace' || e.key === 'Escape') {
+        } else if (isBackKey) {
           setSection(AppSection.Home);
         } else if (e.key === 'Enter') {
           if (loginFieldIndex === 2) handleM3ULogin();
@@ -1155,7 +1195,7 @@ else if (section === AppSection.Dashboard) {
 
   }
 
-  if (e.key === "Backspace" || e.key === "Escape") {
+  if (isBackKey) {
 
     setSection(AppSection.Main);
 
@@ -1207,7 +1247,7 @@ setSection(AppSection.Main);
           } else if (e.key === 'ArrowLeft') {
             setSection(AppSection.Dashboard);
 
-          } else if (e.key === 'Backspace' || e.key === 'Escape') {
+          } else if (isBackKey) {
             setSection(AppSection.Home);
           }
         }
@@ -1236,7 +1276,7 @@ setSection(AppSection.Main);
               setActiveArea('grid');
               setGridFocusedIndex(0);
             }
-          } else if (e.key === 'Backspace' || e.key === 'Escape') {
+          } else if (isBackKey) {
 
   if (showCategoryManager) {
     setShowCategoryManager(false);
@@ -1307,7 +1347,7 @@ setSection(AppSection.Main);
     
     setActiveSeriesDetail(null);
 }
-            } else if (e.key === 'Backspace' || e.key === 'Escape') {
+            } else if (isBackKey) {
               setActiveSeriesDetail(null);
             }
             return;
@@ -1383,7 +1423,7 @@ setSection(AppSection.Main);
   setSidebarFocusedIndex(0);
   setActiveTab(SidebarTab.Live);
 }
-            } else if (e.key === 'Backspace' || e.key === 'Escape') {
+            } else if (isBackKey) {
 
   if (showCategoryManager) {
     setShowCategoryManager(false);
@@ -1447,7 +1487,7 @@ setSection(AppSection.Main);
 
   }
 
-} else if (e.key === 'Backspace' || e.key === 'Escape') {
+} else if (isBackKey) {
             const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab);
             if (hasCategories) setActiveArea('categories');
             else setActiveArea('sidebar');
@@ -1500,7 +1540,7 @@ setSection(AppSection.Main);
           setFocusedPinKeypadIndex(prev => (prev + 1) % 12);
         } else if (e.key === 'ArrowLeft') {
           setFocusedPinKeypadIndex(prev => (prev - 1 + 12) % 12);
-        } else if (e.key === 'Backspace' || e.key === 'Escape') {
+        } else if (isBackKey) {
           setSection(AppSection.Main);
           setPendingAdultItem(null);
         } else if (e.key === 'Enter') {
@@ -1542,7 +1582,7 @@ setSection(AppSection.Main);
             setPlayerControlFocusedIndex(0); // Focus Play/Pause by default
             return;
           }
-          if (e.key === 'Backspace' || e.key === 'Escape') {
+          if (isBackKey) {
             setSection(AppSection.Main);
           }
           return;
@@ -1568,7 +1608,7 @@ else if (e.key === 'ArrowDown') {
             setSection(AppSection.Main);
             setActiveEpisodeId('');
           }
-        } else if (e.key === 'Backspace' || e.key === 'Escape') {
+        } else if (isBackKey) {
           setSection(AppSection.Main);
         }
       }
@@ -2759,6 +2799,42 @@ const isInProgress =
           errorMessage={pinError}
         />
       )}
+      {showExitDialog && (
+  <div className="fixed inset-0 bg-[#050505]/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
+    <div className="w-full max-w-sm bg-[#0C0C0C] border border-white/5 rounded-3xl p-8 flex flex-col items-center gap-6">
+      <p className="text-white text-lg font-bold text-center">¿Desea salir de NovaTV?</p>
+      <div className="flex gap-4 w-full">
+        <button
+          onClick={() => {
+            if ((window as any).webOSSystem?.quit) {
+              (window as any).webOSSystem.quit();
+            } else {
+              window.close();
+            }
+          }}
+          className={`flex-1 py-3 rounded-xl font-bold outline-none border transition-all duration-200 ${
+            exitDialogIndex === 0
+              ? 'bg-[#0066FF] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.3)] scale-[1.02]'
+              : 'bg-[#141414] border-white/5'
+          }`}
+        >
+          Sí
+        </button>
+        <button
+          onClick={() => { setShowExitDialog(false); setExitDialogIndex(0); }}
+          className={`flex-1 py-3 rounded-xl font-bold outline-none border transition-all duration-200 ${
+            exitDialogIndex === 1
+              ? 'bg-[#141414] border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.1)] scale-[1.02]'
+              : 'bg-[#141414] border-white/5'
+          }`}
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {showChangePin && (
   <ChangePINDialog
     focusIndex={changePinFocusIndex}
