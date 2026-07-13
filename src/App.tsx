@@ -54,7 +54,7 @@ export default function App() {
 
 
   // --- APPLICATION VIEWS & GENERAL STATES ---
-  const [section, setSection] = useState<AppSection>(AppSection.Home);
+  const [section, setSection] = useState<AppSection>(AppSection.Startup);
   const [activeTab, setActiveTab] = useState<SidebarTab>(SidebarTab.Live);
   const [isDemoMode, setIsDemoMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -178,6 +178,49 @@ const [loadingEPG, setLoadingEPG] = useState(false);
     if (storedSettings) {
       setSettings(storedSettings);
     }
+  }, []);
+
+  // --- STARTUP FLOW: Auto-login from stored credentials ---
+  useEffect(() => {
+    if (section !== AppSection.Startup) return;
+
+    const attemptAutoLogin = async () => {
+      try {
+        // Try Xtream auto-login first
+        const storedCreds = storage.getCredentials();
+        if (storedCreds) {
+          // Reuse handleXtreamLogin with isAuto=true flag
+          // It will handle success → Dashboard, failure → Home
+          await handleXtreamLogin(storedCreds, true);
+          return;
+        }
+
+        // No Xtream creds, try M3U
+        const storedM3U = storage.getM3UList();
+        if (storedM3U) {
+          setCategories(storedM3U.categories);
+          setItems(storedM3U.items);
+          setIsDemoMode(false);
+          // Find first live category
+          const firstLive = storedM3U.categories.find(c => c.type === 'live');
+          if (firstLive) setSelectedCategory(firstLive.id);
+          setSection(AppSection.Dashboard);
+          setDashboardRowIndex(0);
+          setDashboardColumnIndex(0);
+          setDashboardItemIndex(0);
+          setActiveArea('sidebar');
+          return;
+        }
+
+        // No credentials → Show Home
+        setSection(AppSection.Home);
+      } catch (e) {
+        console.error('Startup auto-login error:', e);
+        setSection(AppSection.Home);
+      }
+    };
+
+    attemptAutoLogin();
   }, []);
 
   // Sync favorites & settings to storage when updated
@@ -503,6 +546,8 @@ setActiveArea('sidebar');
       } else {
   if (!isAuto) {
     setErrorMessage(result.message);
+  } else {
+    setSection(AppSection.Home);
   }
 }
     } catch (e) {
@@ -887,6 +932,11 @@ localStorage.removeItem('webos_settings');
         e.key === "Backspace" ||
         e.key === "Escape" ||
         e.keyCode === 461;
+
+      // EARLY RETURN: Block all input during Startup
+      if (section === AppSection.Startup) {
+        return;
+      }
 
 const isSearchInput =
   (target.tagName === "INPUT" || target.tagName === "TEXTAREA") &&
@@ -1649,6 +1699,9 @@ else if (e.key === 'ArrowDown') {
   return (
     <div className={`min-h-screen bg-[#050505] text-white font-sans overflow-hidden select-none`}>
       
+      {/* 0. --- STARTUP SCREEN (auto-login flow) --- */}
+      {section === AppSection.Startup && null}
+
       {/* 1. --- APP INITIAL HOME LANDING SCREEN --- */}
       {section === AppSection.Home && (
         <div className="min-h-screen flex flex-col items-center justify-center p-6 relative bg-[#050505]">

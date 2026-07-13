@@ -1,4 +1,5 @@
 export enum AppSection {
+  Startup = 'STARTUP',
   Home = 'HOME',
   LoginXtream = 'LOGIN_XTREAM',
   LoginM3u = 'LOGIN_M3U',
