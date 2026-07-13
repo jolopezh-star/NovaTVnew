@@ -11,7 +11,7 @@ interface CategoryPanelProps {
   onSelect: (id: string, index: number) => void;
 }
 
-export default function CategoryPanel({
+function CategoryPanel({
   categories,
   activeArea,
   categoryFocusedIndex,
@@ -70,3 +70,5 @@ export default function CategoryPanel({
     </div>
   );
 }
+
+export default React.memo(CategoryPanel);

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { 
   Tv, Film, Play, Heart, Clock, Search, Settings, 
   Lock, Unlock, LogOut, Check, Sliders, ChevronRight, 
@@ -329,6 +329,13 @@ return () => clearTimeout(timer);
     }
     setGridFocusedIndex(0);
   }, [activeTab, categories]);
+
+  // Handle category selection with stable callback
+  const handleCategorySelect = useCallback((id: string, index: number) => {
+    setSelectedCategory(id);
+    setCategoryFocusedIndex(index);
+    setActiveArea("grid");
+  }, []);
 
   // Get active items in grid
   const getFilteredItems = (): IPTVItem[] => {
@@ -1956,11 +1963,7 @@ else if (e.key === 'ArrowDown') {
     categoryFocusedIndex={categoryFocusedIndex}
     selectedCategory={selectedCategory}
     fontSize={settings.fontSize}
-    onSelect={(id, index) => {
-      setSelectedCategory(id);
-      setCategoryFocusedIndex(index);
-      setActiveArea("grid");
-    }}
+    onSelect={handleCategorySelect}
   />
 
 )}
