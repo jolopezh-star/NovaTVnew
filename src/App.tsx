@@ -1526,6 +1526,15 @@ setSection(AppSection.Main);
 
       // 6. --- CUSTOM PLAYER HUD CONTROLS NAV ---
       else if (section === AppSection.Player && activePlayItem) {
+        console.log(
+          "PLAYER KEY",
+          e.key,
+          "controls:",
+          playerControlsVisible,
+          "focus:",
+          playerControlFocusedIndex
+        );
+        
         if (!playerControlsVisible) {
           // If controls are hidden, any arrow or enter key reveals them instantly!
           if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(e.key)) {
@@ -1549,7 +1558,17 @@ setSection(AppSection.Main);
 }
 else if (e.key === 'ArrowDown') {
   changeChannel(1);
-} else if (e.key === 'Backspace' || e.key === 'Escape') {
+} else if (e.key === 'Enter') {
+          console.log(
+            "PLAYER ENTER",
+            playerControlFocusedIndex
+          );
+          
+          if (playerControlFocusedIndex === 6) {
+            setSection(AppSection.Main);
+            setActiveEpisodeId('');
+          }
+        } else if (e.key === 'Backspace' || e.key === 'Escape') {
           setSection(AppSection.Main);
         }
       }
