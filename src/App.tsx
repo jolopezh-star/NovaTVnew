@@ -1414,21 +1414,24 @@ setSection(AppSection.Main);
           // SETTINGS PANEL TAB SPATIAL NAVIGATION
           if (activeTab === SidebarTab.SettingsTab) {
             if (e.key === 'ArrowDown') {
-              setSettingsIndex(prev => (prev + 1) % 7);
+              setSettingsIndex(prev => (prev + 1) % 8);
             } else if (e.key === 'ArrowUp') {
-              setSettingsIndex(prev => (prev - 1 + 7) % 7);
+              setSettingsIndex(prev => (prev - 1 + 8) % 8);
             } else if (e.key === 'ArrowLeft') {
               setActiveArea('sidebar');
             } else if (e.key === 'Enter') {
               if (settingsIndex === 0) {
+                // Change IPTV Provider
+                setSection(AppSection.Home);
+              } else if (settingsIndex === 1) {
                 // Language Toggle
                 setSettings(prev => ({ ...prev, language: prev.language === 'es' ? 'en' : 'es' }));
-              } else if (settingsIndex === 1) {
+              } else if (settingsIndex === 2) {
                 // Font size Toggle
                 const sizes: ('normal'|'large'|'extra-large')[] = ['normal', 'large', 'extra-large'];
                 const nextSizeIdx = (sizes.indexOf(settings.fontSize) + 1) % sizes.length;
                 setSettings(prev => ({ ...prev, fontSize: sizes[nextSizeIdx] }));
-              } else if (settingsIndex === 2) {
+              } else if (settingsIndex === 3) {
 
   if (settings.isAdultPinLocked) {
 
@@ -1450,7 +1453,7 @@ setSection(AppSection.Main);
 
   }
 
-} else if (settingsIndex === 3) {
+} else if (settingsIndex === 4) {
 
   setCurrentPinInput("");
   setNewPinInput("");
@@ -1459,11 +1462,11 @@ setSection(AppSection.Main);
   setChangePinFocusIndex(0);
   setShowChangePin(true);
 
-} else if (settingsIndex === 4) {
+} else if (settingsIndex === 5) {
   // Category Manager
   setShowCategoryManager(true);
 
-} else if (settingsIndex === 5) {
+} else if (settingsIndex === 6) {
 
   setPendingReset(true);
   setPinInput("");
@@ -1474,7 +1477,7 @@ setSection(AppSection.Main);
 
 
 
-} else if (settingsIndex === 6) {
+} else if (settingsIndex === 7) {
   // Exit Settings / Return to TV
   setShowCategoryManager(false);
   setActiveArea('sidebar');
@@ -2040,10 +2043,23 @@ else if (e.key === 'ArrowDown') {
 
                     <div className="space-y-4">
                       
-                      {/* Language Choice */}
+                      {/* Change IPTV Provider */}
                       <div 
                         className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
                           settingsIndex === 0 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
+                        }`}
+                      >
+                        <div>
+                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Cambiar Proveedor IPTV</p>
+                          <p className="text-[10px] text-white/40 mt-0.5">Cambiar servidor Xtream o lista M3U</p>
+                        </div>
+                        <BookOpen className="w-5 h-5 text-[#0066FF]" />
+                      </div>
+
+                      {/* Language Choice */}
+                      <div 
+                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+                          settingsIndex === 1 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
@@ -2058,7 +2074,7 @@ else if (e.key === 'ArrowDown') {
                       {/* Font Size Choice */}
                       <div 
                         className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-                          settingsIndex === 1 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
+                          settingsIndex === 2 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
@@ -2076,7 +2092,7 @@ else if (e.key === 'ArrowDown') {
                       {/* Parental locked configuration */}
                       <div 
                         className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-                          settingsIndex === 2 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
+                          settingsIndex === 3 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
@@ -2095,7 +2111,7 @@ else if (e.key === 'ArrowDown') {
                       {/* Change PIN */}
 <div
   className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-    settingsIndex === 3
+    settingsIndex === 4
       ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
@@ -2115,7 +2131,7 @@ else if (e.key === 'ArrowDown') {
                       {/* Category Manager */}
 <div
   className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-    settingsIndex === 4
+    settingsIndex === 5
       ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
@@ -2134,7 +2150,7 @@ else if (e.key === 'ArrowDown') {
 {/* Reset option */}
 <div
   className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
-    settingsIndex === 5
+    settingsIndex === 6
       ? 'bg-[#141414] border-red-600 shadow-[0_0_15px_rgba(239,68,68,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
@@ -2153,7 +2169,7 @@ else if (e.key === 'ArrowDown') {
 {/* Back button */}
 <button
   className={`w-full py-4.5 rounded-2xl font-display font-bold uppercase tracking-wider transition-all border text-center outline-none ${
-    settingsIndex === 6
+    settingsIndex === 7
       ? 'bg-white text-black scale-[1.02] font-extrabold shadow-lg border-transparent'
       : 'bg-[#141414]/40 text-white/40 border-white/5 hover:text-white'
   }`}
