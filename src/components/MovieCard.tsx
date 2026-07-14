@@ -112,10 +112,7 @@ function MovieCard({
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           <span className="text-white font-display font-bold uppercase tracking-normal text-base block truncate leading-tight">{item.name}</span>
-          {/* SOLO PARA PRUEBA */}
-    <span className="text-red-500 text-xs block">
-      {item.type}
-    </span>
+          
           <span className={`font-mono font-bold block mt-1 uppercase tracking-widest ${
   item.type === 'live'
     ? 'text-xs text-white/50'
