@@ -1739,7 +1739,7 @@ else if (e.key === 'ArrowDown') {
                 <Sparkles className="w-5 h-5 text-inherit" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Conectar Xtream Codes</span>
+                <span className="block text-base">Conectar Xtream Codes</span>
                 <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 0 ? 'text-white/70' : 'text-white/30'}`}>Accede con tu usuario y contraseña</span>
               </div>
             </button>
@@ -1758,7 +1758,7 @@ else if (e.key === 'ArrowDown') {
                 <BookOpen className="w-5 h-5 text-inherit" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Cargar Lista M3U</span>
+                <span className="block text-base">Cargar Lista M3U</span>
                 <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 1 ? 'text-white/70' : 'text-white/30'}`}>Cargar vía URL o pegar texto plano</span>
               </div>
             </button>
@@ -1777,7 +1777,7 @@ else if (e.key === 'ArrowDown') {
                 <Play className="w-5 h-5 text-inherit fill-current" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Modo Demo</span>
+                <span className="block text-base">Modo Demo</span>
                 <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 2 ? 'text-white/70' : 'text-white/30'}`}>Explora NovaTV sin iniciar sesión</span>
               </div>
             </button>
@@ -1796,7 +1796,7 @@ else if (e.key === 'ArrowDown') {
                 <Settings className="w-5 h-5 text-inherit" />
               </div>
               <div className="text-left">
-                <span className="block text-sm">Configuración</span>
+                <span className="block text-base">Configuración</span>
                 <span className={`text-[10px] font-mono lowercase tracking-normal ${homeIndex === 3 ? 'text-white/70' : 'text-white/30'}`}>Ajustes visuales y de red del reproductor</span>
               </div>
             </button>
@@ -1836,20 +1836,20 @@ else if (e.key === 'ArrowDown') {
   <div className="absolute inset-0 bg-black/20" />
 </>
 
-  <div className="relative z-10 flex flex-col justify-end h-full p-10">
+  <div className="relative z-10 flex flex-col justify-end h-full p-12">
 
-    <span className="text-[#0066FF] font-bold uppercase tracking-[0.3em] text-xs">
+    <span className="text-[#0066FF] font-bold uppercase tracking-[0.3em] text-base">
       DESTACADO
     </span>
 
-    <h1 className="text-5xl font-black mt-3">
+    <h1 className="text-6xl font-black mt-4">
       {
   featuredItem?.name ??
   "NovaTV"
 }
     </h1>
 
-    <div className="flex items-center gap-5 mt-5 text-sm text-white/80">
+    <div className="flex items-center gap-5 mt-6 text-lg text-white/80">
 
   {featuredItem?.year && (
     <span className="px-3 py-1 rounded-full bg-white/10">
@@ -1877,13 +1877,13 @@ else if (e.key === 'ArrowDown') {
 
 </div>
 
-<p className="text-white/70 mt-5 max-w-3xl text-lg leading-8 line-clamp-3">
+<p className="text-white/70 mt-6 max-w-3xl text-3xl leading-9 line-clamp-3">
   {
     featuredItem?.description ??
     "Disfruta tu contenido favorito."
   }
 </p>
-    <div className="flex gap-4 mt-8">
+    <div className="flex gap-4 mt-10">
 
   <button
   onClick={() => {
@@ -1895,7 +1895,7 @@ else if (e.key === 'ArrowDown') {
       playSelectedItem(featuredItem);
     }
   }}
-    className={`px-8 py-4 rounded-2xl transition font-bold text-white flex items-center gap-3 ${
+    className={`px-10 py-5 rounded-2xl transition font-bold text-white flex items-center gap-3 ${
  dashboardColumnIndex === 0
     ? "bg-[#0066FF] ring-4 ring-white scale-105"
     : "bg-[#0066FF] hover:bg-[#0050cc]"
@@ -1906,7 +1906,7 @@ else if (e.key === 'ArrowDown') {
 
   <button
   onClick={() => setSection(AppSection.Main)}
-  className={`px-8 py-4 rounded-2xl font-bold text-white transition ${
+  className={`px-10 py-5 rounded-2xl font-bold text-white transition ${
     dashboardColumnIndex === 1
       ? "bg-[#0066FF] ring-4 ring-white scale-105"
       : "bg-white/10 hover:bg-white/20"
@@ -2030,27 +2030,27 @@ else if (e.key === 'ArrowDown') {
                 
                 {/* A. If we are in Settings Tab */}
                 {activeTab === SidebarTab.SettingsTab && !showCategoryManager ? (
-                  <div className="max-w-xl mx-auto w-full bg-[#0C0C0C] border border-white/5 rounded-3xl p-8 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-y-auto">
+                  <div className="max-w-2xl mx-auto w-full bg-[#0C0C0C] border border-white/5 rounded-3xl p-10 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-y-auto">
                     <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/5">
-                      <div className="h-12 w-12 rounded-xl bg-[#0066FF]/10 text-[#0066FF] flex items-center justify-center">
-                        <Sliders className="w-6 h-6" />
+                      <div className="h-16 w-16 rounded-xl bg-[#0066FF]/10 text-[#0066FF] flex items-center justify-center">
+                        <Sliders className="w-7 h-7" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-display font-extrabold text-white uppercase tracking-tight">Preferencias del Reproductor</h3>
-                        <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider mt-0.5">Personaliza controles, idiomas y seguridad parentales.</p>
+                        <h3 className="text-2xl font-display font-extrabold text-white uppercase tracking-tight">Preferencias del Reproductor</h3>
+                        <p className="text-[11px] font-mono text-white/40 uppercase tracking-wider mt-0.5">Personaliza controles, idiomas y seguridad parentales.</p>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       
                       {/* Change IPTV Provider */}
                       <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+                        className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
                           settingsIndex === 0 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Cambiar Proveedor IPTV</p>
+                          <p className="text-base font-mono font-bold uppercase tracking-wider text-white">Cambiar Proveedor IPTV</p>
                           <p className="text-[10px] text-white/40 mt-0.5">Cambiar servidor Xtream o lista M3U</p>
                         </div>
                         <BookOpen className="w-5 h-5 text-[#0066FF]" />
@@ -2058,30 +2058,30 @@ else if (e.key === 'ArrowDown') {
 
                       {/* Language Choice */}
                       <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+                        className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
                           settingsIndex === 1 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Idioma de la Interfaz</p>
+                          <p className="text-base font-mono font-bold uppercase tracking-wider text-white">Idioma de la Interfaz</p>
                           <p className="text-[10px] text-white/40 mt-0.5">Español / Inglés para navegación rápida.</p>
                         </div>
-                        <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[10px] rounded-lg uppercase">
+                        <span className="px-4 py-2 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[11px] rounded-lg uppercase">
                           {settings.language === 'es' ? 'Español (ES)' : 'English (EN)'}
                         </span>
                       </div>
 
                       {/* Font Size Choice */}
                       <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+                        className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
                           settingsIndex === 2 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Tamaño de Fuente</p>
+                          <p className="text-base font-mono font-bold uppercase tracking-wider text-white">Tamaño de Fuente</p>
                           <p className="text-[10px] text-white/40 mt-0.5">Ajusta el tamaño del texto para televisores 4K.</p>
                         </div>
-                        <span className="px-3 py-1.5 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[10px] rounded-lg uppercase">
+                        <span className="px-4 py-2 bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono font-bold text-[11px] rounded-lg uppercase">
                           {settings.fontSize === 'normal' ? 'Normal' : settings.fontSize === 'large' ? 'Grande' : 'Muy Grande'}
                         </span>
                       </div>
@@ -2091,15 +2091,15 @@ else if (e.key === 'ArrowDown') {
 
                       {/* Parental locked configuration */}
                       <div 
-                        className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+                        className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
                           settingsIndex === 3 ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.15)] scale-[1.02]' : 'bg-[#0C0C0C] border-white/5 text-white/80'
                         }`}
                       >
                         <div>
-                          <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">Filtro Parental (18+)</p>
+                          <p className="text-base font-mono font-bold uppercase tracking-wider text-white">Filtro Parental (18+)</p>
                           <p className="text-[10px] text-white/40 mt-0.5">Protege canales adultos con PIN de seguridad.</p>
                         </div>
-                        <span className={`px-3 py-1.5 border font-mono font-bold text-[10px] rounded-lg uppercase flex items-center gap-1.5 ${
+                        <span className={`px-4 py-2 border font-mono font-bold text-[11px] rounded-lg uppercase flex items-center gap-1.5 ${
                           settings.isAdultPinLocked 
                             ? 'bg-red-500/10 border-red-500/25 text-red-400' 
                             : 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
@@ -2110,14 +2110,14 @@ else if (e.key === 'ArrowDown') {
                       </div>
                       {/* Change PIN */}
 <div
-  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+  className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
     settingsIndex === 4
       ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
 >
   <div>
-    <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+    <p className="text-base font-mono font-bold uppercase tracking-wider text-white">
       Cambiar PIN
     </p>
     <p className="text-[10px] text-white/40 mt-0.5">
@@ -2130,14 +2130,14 @@ else if (e.key === 'ArrowDown') {
 
                       {/* Category Manager */}
 <div
-  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+  className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
     settingsIndex === 5
       ? 'bg-[#141414] border-[#0066FF] shadow-[0_0_15px_rgba(0,102,255,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
 >
   <div>
-    <p className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+    <p className="text-base font-mono font-bold uppercase tracking-wider text-white">
       Administrador de Categorías
     </p>
     <p className="text-[10px] text-white/40 mt-0.5">
@@ -2149,14 +2149,14 @@ else if (e.key === 'ArrowDown') {
 
 {/* Reset option */}
 <div
-  className={`p-4 rounded-2xl flex items-center justify-between border transition-all ${
+  className={`p-5 rounded-2xl flex items-center justify-between border transition-all ${
     settingsIndex === 6
       ? 'bg-[#141414] border-red-600 shadow-[0_0_15px_rgba(239,68,68,0.2)] scale-[1.02]'
       : 'bg-[#0C0C0C] border-white/5 text-white/80'
   }`}
 >
   <div>
-    <p className="text-xs font-mono font-bold uppercase tracking-wider text-red-500">
+    <p className="text-base font-mono font-bold uppercase tracking-wider text-red-500">
       Limpiar Caché y Restablecer
     </p>
     <p className="text-[10px] text-white/40 mt-0.5">
@@ -2168,7 +2168,7 @@ else if (e.key === 'ArrowDown') {
 
 {/* Back button */}
 <button
-  className={`w-full py-4.5 rounded-2xl font-display font-bold uppercase tracking-wider transition-all border text-center outline-none ${
+  className={`w-full py-6 rounded-2xl font-display font-bold uppercase tracking-wider transition-all border text-center outline-none ${
     settingsIndex === 7
       ? 'bg-white text-black scale-[1.02] font-extrabold shadow-lg border-transparent'
       : 'bg-[#141414]/40 text-white/40 border-white/5 hover:text-white'
@@ -2386,7 +2386,7 @@ else if (e.key === 'ArrowDown') {
                                     </div>
 
                                     {/* Information text */}
-                                    <h3 className="text-base font-display font-extrabold text-white leading-tight uppercase tracking-tight truncate">{focusedChannel.name}</h3>
+                                    <h3 className="text-lg font-display font-extrabold text-white leading-tight uppercase tracking-tight truncate">{focusedChannel.name}</h3>
                                     <p className="text-white/30 text-[9px] font-mono font-bold uppercase tracking-widest mt-0.5">
   Guía en tiempo real
 </p>
@@ -2504,7 +2504,7 @@ else if (e.key === 'ArrowDown') {
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-3">
-                                <h3 className="text-lg font-display font-bold text-white uppercase tracking-tight truncate leading-tight">{filteredItems[gridFocusedIndex].name}</h3>
+                                <h3 className="text-xl font-display font-bold text-white uppercase tracking-tight truncate leading-tight">{filteredItems[gridFocusedIndex].name}</h3>
                                 <span className="bg-[#0066FF]/10 border border-[#0066FF]/20 text-[#0066FF] font-mono text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
                                   ★ {filteredItems[gridFocusedIndex].rating || '8.5'}
                                 </span>

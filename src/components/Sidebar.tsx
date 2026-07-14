@@ -32,20 +32,20 @@ export default function Sidebar({
   return (
     <div
       className={`h-screen flex flex-col bg-[#0C0C0C] border-r border-white/5 transition-all duration-300 ${
-        isSidebarFocused ? 'w-64 shadow-[10px_0_35px_rgba(0,0,0,0.75)]' : 'w-20'
+        isSidebarFocused ? 'w-80 shadow-[10px_0_35px_rgba(0,0,0,0.75)]' : 'w-20'
       } z-40 shrink-0 select-none`}
     >
       {/* Brand Logo / Watermark */}
-      <div className="flex items-center h-20 px-5 gap-3 border-b border-white/5 overflow-hidden">
-        <div className="h-10 w-10 rounded-xl bg-[#0066FF] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,102,255,0.5)]">
-          <Tv className="w-6 h-6 text-white" />
+      <div className="flex items-center h-24 px-5 gap-3 border-b border-white/5 overflow-hidden">
+        <div className="h-14 w-14 rounded-xl bg-[#0066FF] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,102,255,0.5)]">
+          <Tv className="w-7 h-7 text-white" />
         </div>
         <div
           className={`flex flex-col transition-opacity duration-300 ${
             isSidebarFocused ? 'opacity-100' : 'opacity-0 w-0'
           }`}
         >
-          <span className="font-display font-extrabold tracking-tight text-white leading-none text-base uppercase">
+          <span className="font-display font-extrabold tracking-tight text-white leading-none text-lg uppercase">
             webOS <span className="text-[#0066FF]">IPTV</span>
           </span>
           <span className="text-[9px] text-white/40 tracking-widest font-mono font-semibold uppercase mt-1">
@@ -66,7 +66,7 @@ export default function Sidebar({
               <button
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 outline-none relative group border ${
+                className={`w-full flex items-center gap-4 px-4 py-5 rounded-xl transition-all duration-200 outline-none relative group border ${
                   isTabFocused
                     ? 'bg-[#0066FF]/20 text-[#0066FF] border-[#0066FF]/40 shadow-[0_0_15px_rgba(0,102,255,0.25)]'
                     : isTabActive
@@ -83,7 +83,7 @@ export default function Sidebar({
                 )}
 
                 <IconComponent
-                  className={`w-5 h-5 shrink-0 transition-colors ${
+                  className={`w-6 h-6 shrink-0 transition-colors ${
                     isTabFocused || isTabActive ? 'text-[#0066FF]' : 'text-white/40 group-hover:text-white'
                   }`}
                 />
@@ -91,7 +91,7 @@ export default function Sidebar({
                 <span
                   className={`font-display font-semibold uppercase tracking-wider transition-all duration-200 ${
                     isSidebarFocused ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 hidden'
-                  } ${fontSize === 'large' ? 'text-base' : fontSize === 'extra-large' ? 'text-lg' : 'text-xs'}`}
+                  } ${fontSize === 'large' ? 'text-lg' : fontSize === 'extra-large' ? 'text-xl' : 'text-sm'}`}
                 >
                   {tab.label}
                 </span>
