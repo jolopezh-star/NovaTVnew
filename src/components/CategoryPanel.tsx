@@ -40,9 +40,9 @@ function CategoryPanel({
           <button
             key={cat.id}
             onClick={() => onSelect(cat.id, idx)}
-            className={`w-full text-left px-4 py-5 rounded-xl font-semibold transition-all duration-200 outline-none flex items-center justify-between border ${
+            className={`w-full text-left px-4 py-5 rounded-xl font-semibold transition-all duration-150 outline-none flex items-center justify-between border ${
               isFocused
-                ? "bg-[#0066FF] text-white border-transparent shadow-[0_0_15px_rgba(0,102,255,0.3)] scale-105 font-extrabold"
+                ? "bg-[#0066FF] text-white border-transparent shadow-[0_0_15px_rgba(0,102,255,0.3)] font-extrabold"
                 : isActive
                 ? "bg-white/5 text-[#0066FF] border-white/5"
                 : "text-white/40 hover:text-white border-transparent hover:bg-white/5"

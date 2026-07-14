@@ -31,7 +31,7 @@ export default function Sidebar({
 
   return (
     <div
-      className={`h-screen flex flex-col bg-[#0C0C0C] border-r border-white/5 transition-all duration-150 ${
+      className={`h-screen flex flex-col bg-[#0C0C0C] border-r border-white/5 transition-[width] duration-150 ${
         isSidebarFocused ? 'w-80 shadow-[10px_0_35px_rgba(0,0,0,0.75)]' : 'w-20'
       } z-40 shrink-0 select-none`}
     >

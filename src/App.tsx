@@ -2375,7 +2375,9 @@ else if (e.key === 'ArrowDown') {
 
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-white font-display font-bold uppercase tracking-wide text-xs truncate leading-tight block">{item.name}</span>
+                                    <span className="text-white font-display font-bold uppercase tracking-normal text-sm truncate leading-tight block">
+                                    {item.name}
+                                      </span>
                                     {isFavorite && <Heart className="w-3.5 h-3.5 fill-red-500 text-red-500 shrink-0" />}
                                   </div>
                                   <span className={`text-[10px] block truncate font-mono uppercase tracking-wider mt-1 ${
