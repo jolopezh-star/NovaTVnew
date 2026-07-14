@@ -50,6 +50,24 @@ import SearchScreen from "./components/SearchScreen";
 import CatalogHeader from "./components/CatalogHeader";
 import CategoryPanel from "./components/CategoryPanel";
 import SettingsPanel from "./components/SettingsPanel";
+
+const ADULT_WORDS = [
+  "adult",
+  "adults",
+  "adultos",
+  "xxx",
+  "porn",
+  "porno",
+  "sex",
+  "erotic",
+  "erotica",
+  "er\u00f3tico",
+  "er\u00f3tica",
+  "hentai",
+  "18+",
+  "+18"
+];
+
 export default function App() {
 
 
@@ -454,40 +472,23 @@ const continueWatching = useMemo(() => {
     entry !== null
 );
 }, [items]);
-  const activeCategoriesOfTab = categories.filter(c => {
-   const adultWords = [
-  "adult",
-  "adults",
-  "adultos",
-  "xxx",
-  "porn",
-  "porno",
-  "sex",
-  "erotic",
-  "erotica",
-  "erótico",
-  "erótica",
-  "hentai",
-  "18+",
-  "+18"
-]; 
-
+  const activeCategoriesOfTab = useMemo(() => categories.filter(c => {
   if (settings.hiddenCategories.includes(c.id)) {
     return false;
   }
   if (
-  settings.isAdultPinLocked &&
-  adultWords.some(word => c.name.toLowerCase().includes(word))
-) {
-  return false;
-}
+    settings.isAdultPinLocked &&
+    ADULT_WORDS.some(word => c.name.toLowerCase().includes(word))
+  ) {
+    return false;
+  }
 
   if (activeTab === SidebarTab.Live) return c.type === 'live';
   if (activeTab === SidebarTab.Movies) return c.type === 'movie';
   if (activeTab === SidebarTab.Series) return c.type === 'series';
 
   return false;
-});
+}), [categories, activeTab, settings.hiddenCategories, settings.isAdultPinLocked]);
 const allCategories = useMemo(() => {
   return [...categories].sort((a, b) => a.name.localeCompare(b.name));
 }, [categories]);
@@ -915,9 +916,35 @@ localStorage.removeItem('webos_settings');
     window.location.reload();
   };
 
+  // --- NAV STATE REF: synced every render so the handler always reads fresh values ---
+  const navRef = useRef({
+    section, activeTab, activeArea, homeIndex, loginFieldIndex,
+    sidebarFocusedIndex, categoryFocusedIndex, gridFocusedIndex,
+    filteredItems, activeCategoriesOfTab, xtreamCreds,
+    activeSeriesDetail, selectedSeason, seriesModalFocusIndex,
+    favorites, focusedPinKeypadIndex, playerControlsVisible,
+    playerControlFocusedIndex,
+  });
+  navRef.current = {
+    section, activeTab, activeArea, homeIndex, loginFieldIndex,
+    sidebarFocusedIndex, categoryFocusedIndex, gridFocusedIndex,
+    filteredItems, activeCategoriesOfTab, xtreamCreds,
+    activeSeriesDetail, selectedSeason, seriesModalFocusIndex,
+    favorites, focusedPinKeypadIndex, playerControlsVisible,
+    playerControlFocusedIndex,
+  };
+
   // --- SPATIAL KEYBOARD CONTROL MATRIX ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const {
+        section, activeTab, activeArea, homeIndex, loginFieldIndex,
+        sidebarFocusedIndex, categoryFocusedIndex, gridFocusedIndex,
+        filteredItems, activeCategoriesOfTab, xtreamCreds,
+        activeSeriesDetail, selectedSeason, seriesModalFocusIndex,
+        favorites, focusedPinKeypadIndex, playerControlsVisible,
+        playerControlFocusedIndex,
+      } = navRef.current;
       console.log(
         "RAW KEY",
         e.key,
@@ -1266,38 +1293,47 @@ else if (section === AppSection.Dashboard) {
         
         // A. SIDEBAR FOCUS AREA
         if (activeArea === 'sidebar') {
+          // Shared tab map used by Enter and ArrowRight
+          const sidebarTabs = [
+            SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series,
+            SidebarTab.Favorites, SidebarTab.Recents, SidebarTab.Search, SidebarTab.SettingsTab
+          ];
+
           if (e.key === 'ArrowDown') {
-            const nextIdx = (sidebarFocusedIndex + 1) % 7;
-            setSidebarFocusedIndex(nextIdx);
-            // Map tab enum
-            const tabs = [
-              SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series, 
-              SidebarTab.Favorites, SidebarTab.Recents, SidebarTab.Search, SidebarTab.SettingsTab
-            ];
-            const nextTab = tabs[nextIdx];
+            // Phase 1: only move visual focus, do NOT change activeTab
+            setSidebarFocusedIndex((sidebarFocusedIndex + 1) % 7);
 
-setActiveTab(nextTab);
-
-setSection(AppSection.Main);
           } else if (e.key === 'ArrowUp') {
-            const prevIdx = (sidebarFocusedIndex - 1 + 7) % 7;
-            setSidebarFocusedIndex(prevIdx);
-            const tabs = [
-              SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series, 
-              SidebarTab.Favorites, SidebarTab.Recents, SidebarTab.Search, SidebarTab.SettingsTab
-            ];
-            const prevTab = tabs[prevIdx];
+            // Phase 1: only move visual focus, do NOT change activeTab
+            setSidebarFocusedIndex((sidebarFocusedIndex - 1 + 7) % 7);
 
-setActiveTab(prevTab);
+          } else if (e.key === 'Enter') {
+            // Phase 2: confirm the focused tab and load its content
+            const confirmedTab = sidebarTabs[sidebarFocusedIndex];
+            setActiveTab(confirmedTab);
+            setSection(AppSection.Main);
+            if (confirmedTab === SidebarTab.Search) {
+              setSearchQuery('');
+              setSearchResults([]);
+              setActiveArea('grid');
+              setGridFocusedIndex(0);
+            } else if (confirmedTab === SidebarTab.SettingsTab) {
+              setActiveArea('grid');
+              setSettingsIndex(0);
+            } else {
+              setActiveArea('grid');
+              setGridFocusedIndex(0);
+            }
 
-setSection(AppSection.Main);
           } else if (e.key === 'ArrowRight') {
-            // Move to Categories list if TV, Movies, or Series. Otherwise move to Grid.
-            const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(activeTab);
-            if (hasCategories && activeCategoriesOfTab.length > 0) {
+            // Pressing right implicitly confirms the focused tab before entering the content area
+            const pendingTab = sidebarTabs[sidebarFocusedIndex];
+            setActiveTab(pendingTab);
+            const hasCategories = [SidebarTab.Live, SidebarTab.Movies, SidebarTab.Series].includes(pendingTab);
+            if (hasCategories) {
               setActiveArea('categories');
               setCategoryFocusedIndex(0);
-                        } else {
+            } else {
               setActiveArea('grid');
               setGridFocusedIndex(0);
             }
@@ -1678,11 +1714,8 @@ else if (e.key === 'ArrowDown') {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
-    section, activeTab, activeArea, homeIndex, loginFieldIndex, sidebarFocusedIndex, 
-    categoryFocusedIndex, gridFocusedIndex, filteredItems, activeCategoriesOfTab, 
-    xtreamCreds, m3uUrl, m3uRaw, activeSeriesDetail, selectedSeason, seriesModalFocusIndex, 
-    favorites, focusedPinKeypadIndex, pinInput, settings, playerControlsVisible, 
-    playerControlFocusedIndex, activePlayItem
+    // Only variables needed for correct function closures (triggerPlay, changeChannel, handleM3ULogin):
+    settings, m3uUrl, m3uRaw, activePlayItem, pinInput
   ]);
 
   // Handle grid list items programmatic scroll alignment

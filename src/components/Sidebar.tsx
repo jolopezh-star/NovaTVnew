@@ -31,7 +31,7 @@ export default function Sidebar({
 
   return (
     <div
-      className={`h-screen flex flex-col bg-[#0C0C0C] border-r border-white/5 transition-all duration-300 ${
+      className={`h-screen flex flex-col bg-[#0C0C0C] border-r border-white/5 transition-all duration-150 ${
         isSidebarFocused ? 'w-80 shadow-[10px_0_35px_rgba(0,0,0,0.75)]' : 'w-20'
       } z-40 shrink-0 select-none`}
     >
@@ -41,7 +41,7 @@ export default function Sidebar({
           <Tv className="w-7 h-7 text-white" />
         </div>
         <div
-          className={`flex flex-col transition-opacity duration-300 ${
+          className={`flex flex-col transition-opacity duration-150 ${
             isSidebarFocused ? 'opacity-100' : 'opacity-0 w-0'
           }`}
         >
@@ -66,7 +66,7 @@ export default function Sidebar({
               <button
                 key={tab.id}
                 onClick={() => onSelectTab(tab.id)}
-                className={`w-full flex items-center gap-4 px-4 py-5 rounded-xl transition-all duration-200 outline-none relative group border ${
+                className={`w-full flex items-center gap-4 px-4 py-5 rounded-xl transition-all duration-150 outline-none relative group border ${
                   isTabFocused
                     ? 'bg-[#0066FF]/20 text-[#0066FF] border-[#0066FF]/40 shadow-[0_0_15px_rgba(0,102,255,0.25)]'
                     : isTabActive
@@ -110,7 +110,7 @@ export default function Sidebar({
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-[#0066FF] shadow-[0_0_8px_rgba(0,102,255,0.8)] animate-pulse" />
             <span
-              className={`text-[10px] text-white/30 font-mono font-semibold uppercase tracking-widest transition-opacity duration-300 ${
+              className={`text-[10px] text-white/30 font-mono font-semibold uppercase tracking-widest transition-opacity duration-150 ${
                 isSidebarFocused ? 'opacity-100' : 'opacity-0 w-0'
               }`}
             >
