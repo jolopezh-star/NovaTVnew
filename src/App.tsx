@@ -1578,7 +1578,7 @@ setSection(AppSection.Main);
           }
 
           // GENERAL GRID COLS & CALCULATIONS (4 Columns layout for TV optimized spacing)
-          const cols = 4;
+          const cols = activeTab === SidebarTab.Live ? 2 : 4;
           const rowsCount = Math.ceil(filteredItems.length / cols);
 
           if (e.key === 'ArrowRight') {
