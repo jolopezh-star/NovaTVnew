@@ -48,6 +48,14 @@ function MovieCard({
             : "bg-[#141414]"
         }`}
       >
+        <div
+  className={`h-full w-full flex items-center justify-center text-white/30 font-bold ${
+    isGridFocused ? "bg-[#202020]" : "bg-[#141414]"
+  }`}
+>
+  SIN POSTER
+</div>
+        {/*
         <img 
           src={item.logo} 
           alt={item.name} 
@@ -56,7 +64,7 @@ function MovieCard({
           }`}
           referrerPolicy="no-referrer"
         />
-        
+        */}
         {/* Badges Overlay */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
           {item.type === 'series' ? (

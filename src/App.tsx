@@ -451,8 +451,6 @@ return () => clearTimeout(timer);
 );
 
 const continueWatching = useMemo(() => {
-  const progress = storage.getProgress();
-
   return progress
     .filter(p => p.percentage > 0 && p.percentage < 95)
     .sort((a, b) => b.updatedAt - a.updatedAt)
@@ -932,10 +930,70 @@ localStorage.removeItem('webos_recent_channels');
 localStorage.removeItem('webos_settings');
     window.location.reload();
   };
+const navRef = useRef({
+  section,
+  activeTab,
+  activeArea,
+  homeIndex,
+  loginFieldIndex,
+  sidebarFocusedIndex,
+  categoryFocusedIndex,
+  gridFocusedIndex,
+  filteredItems,
+  activeCategoriesOfTab,
+  xtreamCreds,
+  activeSeriesDetail,
+  selectedSeason,
+  seriesModalFocusIndex,
+  favorites,
+  focusedPinKeypadIndex,
+  playerControlsVisible,
+  playerControlFocusedIndex,
+});
 
+navRef.current = {
+  section,
+  activeTab,
+  activeArea,
+  homeIndex,
+  loginFieldIndex,
+  sidebarFocusedIndex,
+  categoryFocusedIndex,
+  gridFocusedIndex,
+  filteredItems,
+  activeCategoriesOfTab,
+  xtreamCreds,
+  activeSeriesDetail,
+  selectedSeason,
+  seriesModalFocusIndex,
+  favorites,
+  focusedPinKeypadIndex,
+  playerControlsVisible,
+  playerControlFocusedIndex,
+};
   // --- SPATIAL KEYBOARD CONTROL MATRIX ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const {
+  section,
+  activeTab,
+  activeArea,
+  homeIndex,
+  loginFieldIndex,
+  sidebarFocusedIndex,
+  categoryFocusedIndex,
+  gridFocusedIndex,
+  filteredItems,
+  activeCategoriesOfTab,
+  xtreamCreds,
+  activeSeriesDetail,
+  selectedSeason,
+  seriesModalFocusIndex,
+  favorites,
+  focusedPinKeypadIndex,
+  playerControlsVisible,
+  playerControlFocusedIndex,
+} = navRef.current;
       console.log(
         "RAW KEY",
         e.key,
@@ -1759,12 +1817,12 @@ else if (e.key === 'ArrowDown') {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
-    section, activeTab, activeArea, homeIndex, loginFieldIndex, sidebarFocusedIndex, 
-    categoryFocusedIndex, gridFocusedIndex, filteredItems, activeCategoriesOfTab, 
-    xtreamCreds, m3uUrl, m3uRaw, activeSeriesDetail, selectedSeason, seriesModalFocusIndex, 
-    favorites, focusedPinKeypadIndex, pinInput, settings, playerControlsVisible, 
-    playerControlFocusedIndex, activePlayItem
-  ]);
+  settings,
+  m3uUrl,
+  m3uRaw,
+  activePlayItem,
+  pinInput
+]);
 
   // Handle grid list items programmatic scroll alignment
   useEffect(() => {
@@ -2396,8 +2454,13 @@ else if (e.key === 'ArrowDown') {
                           ref={gridContainerRef}
                           className="col-span-8 overflow-y-auto pr-2 grid grid-cols-2 gap-4 pb-12 select-none h-full"
                         >
+                      
                           {filteredItems.map((item, idx) => {
                             const isGridFocused = activeArea === 'grid' && gridFocusedIndex === idx;
+
+if (isGridFocused) {
+  console.log("FOCO", idx);
+}
                             const isFavorite = favorites.includes(item.id);
 
                             return (
@@ -2436,7 +2499,11 @@ else if (e.key === 'ArrowDown') {
                                   <span className={`text-[10px] block truncate font-mono uppercase tracking-wider mt-1 ${
                                     isGridFocused ? 'text-white/60' : 'text-white/30'
                                   }`}>
-                                    {generateEPG(item.id)[0]?.title || 'Emisión continua'}
+                                    <span className={`text-[10px] block truncate font-mono uppercase tracking-wider mt-1 ${
+                                      isGridFocused ? 'text-white/60' : 'text-white/30'
+                                      }`}>
+                                        Programa
+                                       </span>
                                   </span>
                                 </div>
                               </button>
@@ -2619,6 +2686,7 @@ else if (e.key === 'ArrowDown') {
                             ref={gridContainerRef}
                             className="flex-1 overflow-y-auto grid grid-cols-4 gap-6 pb-16 scrollbar-none pr-2 h-full"
                           >
+                            console.log("POSTERS:", filteredItems.length);
                             {filteredItems.map((item, idx) => {
                               const isGridFocused = activeArea === 'grid' && gridFocusedIndex === idx;
                               const isFavorite = favorites.includes(item.id);
